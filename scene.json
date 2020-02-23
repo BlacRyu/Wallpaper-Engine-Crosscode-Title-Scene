@@ -1,0 +1,254 @@
+{
+	"camera" : 
+	{
+		"center" : "0.000 0.000 -1.000",
+		"eye" : "0.000 0.000 0.000",
+		"up" : "0.000 1.000 0.000"
+	},
+	"general" : 
+	{
+		"ambientcolor" : "0.300 0.300 0.300",
+		"bloom" : false,
+		"bloomstrength" : 2.0,
+		"bloomthreshold" : 0.64999997615814209,
+		"camerafade" : false,
+		"cameraparallax" : false,
+		"cameraparallaxamount" : 0.5,
+		"cameraparallaxdelay" : 0.10000000149011612,
+		"cameraparallaxmouseinfluence" : 0.0,
+		"camerapreview" : false,
+		"camerashake" : false,
+		"camerashakeamplitude" : 0.5,
+		"camerashakeroughness" : 1.0,
+		"camerashakespeed" : 3.0,
+		"clearcolor" : "0.700 0.700 0.700",
+		"clearenabled" : true,
+		"farz" : 10000.0,
+		"fov" : 50.0,
+		"nearz" : 0.0099999997764825821,
+		"orthogonalprojection" : 
+		{
+			"height" : 2160,
+			"width" : 3840
+		},
+		"skylightcolor" : "0.300 0.300 0.300"
+	},
+	"objects" : 
+	[
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 13,
+			"image" : "models/empty.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Sounds (script)",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "1.000 1.000 1.000",
+			"size" : "512.000 512.000",
+			"solid" : true,
+			"visible" : false
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 44,
+			"image" : "models/sky.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "sky",
+			"origin" : "1920.000 1336.561 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.760 6.760 6.760",
+			"size" : "568.000 395.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/transform/effect.json",
+					"id" : 48,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"MODE" : 1
+							},
+							"id" : 49
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 36,
+			"image" : "models/planet.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "planet",
+			"origin" : "610.929 1689.830 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.760 6.760 6.760",
+			"size" : "180.000 315.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 18,
+			"image" : "models/clouds-2.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "clouds-2",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 6.761",
+			"size" : "568.000 277.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 12,
+			"image" : "models/clouds-1.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "clouds-1",
+			"origin" : "2073.937 750.136 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.760 6.760 6.760",
+			"size" : "524.000 130.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 22,
+			"image" : "models/ground.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "ground",
+			"origin" : "1920.000 547.330 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 6.761",
+			"size" : "568.000 162.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 40,
+			"image" : "models/railings.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "railings",
+			"origin" : "1920.000 212.802 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 6.761",
+			"size" : "568.000 63.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 26,
+			"image" : "models/lea.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "lea",
+			"origin" : "3216.099 826.690 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 6.761",
+			"size" : "184.000 245.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/pixelate/effect.json",
+					"id" : 54,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"POINTFILTER" : 1
+							},
+							"constantshadervalues" : 
+							{
+								"Resolution Scale" : 0.5
+							},
+							"id" : 55
+						}
+					],
+					"visible" : false
+				},
+				{
+					"file" : "effects/downsample4x/effect.json",
+					"id" : 74,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"FILTER" : 1
+							},
+							"id" : 75
+						},
+						{
+							"combos" : 
+							{
+								"FILTER" : 1,
+								"TRANSFORM" : 1
+							},
+							"id" : 76
+						}
+					],
+					"visible" : false
+				}
+			],
+			"id" : 51,
+			"image" : "models/util/fullscreenlayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Post FX",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"solid" : true,
+			"visible" : true
+		}
+	]
+}
