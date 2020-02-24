@@ -8,14 +8,18 @@
 	"general" : 
 	{
 		"ambientcolor" : "0.300 0.300 0.300",
-		"bloom" : false,
-		"bloomstrength" : 2.0,
-		"bloomthreshold" : 0.64999997615814209,
+		"bloom" : true,
+		"bloomstrength" : 
+		{
+			"user" : "bloom",
+			"value" : 0.0
+		},
+		"bloomthreshold" : 0.69999998807907104,
 		"camerafade" : false,
 		"cameraparallax" : false,
 		"cameraparallaxamount" : 0.5,
 		"cameraparallaxdelay" : 0.10000000149011612,
-		"cameraparallaxmouseinfluence" : 0.0,
+		"cameraparallaxmouseinfluence" : 1.0,
 		"camerapreview" : false,
 		"camerashake" : false,
 		"camerashakeamplitude" : 0.5,
@@ -42,7 +46,7 @@
 			"id" : 13,
 			"image" : "models/empty.json",
 			"ledsource" : false,
-			"locktransforms" : false,
+			"locktransforms" : true,
 			"name" : "Sounds (script)",
 			"origin" : "1920.000 1080.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
@@ -50,7 +54,11 @@
 			"scale" : "1.000 1.000 1.000",
 			"size" : "512.000 512.000",
 			"solid" : true,
-			"visible" : false
+			"visible" : 
+			{
+				"script" : "'use strict';\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nlet repeatDelay = 1;\nlet repeatTimer = 0;\n\nlet activeAudio = [];\n\n\n\n\nclass SoundLayer {\n\tconstructor(asset){\n\t\tthis.asset = asset;\n\t\tthis._layer = thisScene.createLayer(asset);\n\t\tthis._layer.volume = 0.5;\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis._layer.pause();\n\t\tthis.repeatTimer = 0;\n\n\t\t// Make wrapped layer's properties and methods accessible (using methods on 'this' seems to cause a crash)\n\t\tlet layerKeys = Object.keys(this._layer);\n\t\tfor (let i = 0; i < layerKeys.length; ++i) {\n\t\t\tthis[layerKeys[i]] = this._layer[layerKeys[i]];\n\t\t}\n\t}\n\n\tupdate() {\n\n\t\t// Fade out then kill layer\n\t\tif (this.fadeOut) {\n\t\t\tthis.fadeTimer += engine.frametime;\n\t\t\tif (this.fadeTimer > SoundLayer.fadeTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis._layer.volume = 0.5 * (1 - (this.fadeTimer / SoundLayer.fadeTime));\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying()) {\n\t\t\tthis._layer.play();\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\tthis.repeatTimer += engine.frametime;\n\n\t\t\t// Start new audio\n\t\t\tif (this.repeatTimer > this.repeatDelay) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new SoundLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tactiveAudio.push(newLayer);\n\t\t\t\tthis.repeatTimer = -9999;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.fadeOut = true;\n\t\tthis.fadeTimer = this.fadeTimer || 0;\n\t}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\nSoundLayer.fadeTime = 1.0;\n\n\n\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\trepeatTimer += engine.frametime;\n\n\t// Update existing audio\n\tactiveAudio.forEach(\n\t\tfunction(soundLayer, index, array) {\n\t\t\tsoundLayer.update();\n\t\t\tif (soundLayer.isDone) {\n\t\t\t\tarray.splice(index, 1);\n\t\t\t}\n\t\t}\n\t);\n\n\treturn value;\n}\n\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\n\t\tstartMusic();\n\t}\n}\n\n\n\n\n// Start fading out all active audio\nfunction fadeAll() {\n\tfor (let i = 0; i < activeAudio.length; ++i) {\n\t\tactiveAudio[i].startFade();\n\t}\n}\n\n\n\n\n// Start new music\nfunction startMusic() {\n\t// Fade out any active music\n\tfadeAll();\n\n\tlet newMusic = undefined;\n\n\tswitch (music) {\n\tcase \"Old\":\n\t\tnewMusic = new SoundLayer(a_TitleMusicOld);\n\t\tnewMusic.repeatDelay = musicRepeatDelayOld;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"New\":\n\t\tnewMusic = new SoundLayer(a_TitleMusic);\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tnewMusic = new SoundLayer(a_TitleAmbient)\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"Ambient\":\n\t\tnewMusic = new SoundLayer(a_TitleAmbient);\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"None\":\n\tdefault:\n\t\tbreak;\n\t}\n}",
+				"value" : false
+			}
 		},
 		{
 			"angles" : "0.000 0.000 0.000",
@@ -249,6 +257,37 @@
 			"perspective" : false,
 			"solid" : true,
 			"visible" : true
+		},
+		{
+			"alpha" : 1.0,
+			"anchor" : "none",
+			"angles" : "0.000 0.000 0.000",
+			"backgroundcolor" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"font" : "systemfont_arial",
+			"horizontalalign" : "center",
+			"id" : 104,
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "DEBUG: Is Music playing?",
+			"opaquebackground" : false,
+			"origin" : "1101.735 1542.857 0.000",
+			"padding" : 32,
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"pointsize" : 32.0,
+			"scale" : "1.000 1.000 1.000",
+			"size" : "1017.000 153.000",
+			"solid" : true,
+			"text" : 
+			{
+				"script" : "'use strict';\n\n/**\n * @param {String} value (for property 'text')\n */\nexport function update(value) {\n\tvalue = \"Is Music playing? No.\";\n\tthisScene.enumerateLayers().forEach( function(layer, index, array) {\n\t\tif (layer.isPlaying && layer.isPlaying()){\n\t\t\tvalue = \"Is Music playing? Yes!\";\n\t\t}\n\t});\n\t\n\treturn value;\n}\n",
+				"value" : "Is Music playing?"
+			},
+			"verticalalign" : "center",
+			"visible" : false
 		}
 	]
 }

@@ -5,6 +5,52 @@
 	{
 		"properties" : 
 		{
+			"advanced_settings" : 
+			{
+				"order" : 100,
+				"text" : "Advanced Settings",
+				"type" : "bool",
+				"value" : false
+			},
+			"bloom" : 
+			{
+				"condition" : "advanced_settings.value == true",
+				"fraction" : true,
+				"max" : 3,
+				"min" : 0,
+				"order" : 101,
+				"precision" : 2,
+				"step" : 0.10000000000000001,
+				"text" : "Bloom",
+				"type" : "slider",
+				"value" : 0
+			},
+			"music" : 
+			{
+				"options" : 
+				[
+					{
+						"label" : "New Music",
+						"value" : "New"
+					},
+					{
+						"label" : "Old Music",
+						"value" : "Old"
+					},
+					{
+						"label" : "Ambient only",
+						"value" : "Ambient"
+					},
+					{
+						"label" : "None",
+						"value" : "None"
+					}
+				],
+				"order" : 102,
+				"text" : "Music",
+				"type" : "combo",
+				"value" : "New"
+			},
 			"schemecolor" : 
 			{
 				"order" : 0,
