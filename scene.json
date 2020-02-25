@@ -1,18 +1,22 @@
 {
 	"camera" : 
 	{
-		"center" : "0.000 0.000 -1.000",
-		"eye" : "0.000 0.000 0.000",
+		"center" : "0.000 0.000 0.000",
+		"eye" : "0.000 0.000 1.000",
 		"up" : "0.000 1.000 0.000"
 	},
 	"general" : 
 	{
 		"ambientcolor" : "0.300 0.300 0.300",
-		"bloom" : true,
+		"bloom" : 
+		{
+			"user" : "extra_effects",
+			"value" : true
+		},
 		"bloomstrength" : 
 		{
 			"user" : "bloom",
-			"value" : 0.0
+			"value" : 0.60000002384185791
 		},
 		"bloomthreshold" : 0.69999998807907104,
 		"camerafade" : false,
@@ -43,6 +47,90 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"id" : 134,
+			"image" : "models/empty.json",
+			"ledsource" : false,
+			"locktransforms" : true,
+			"name" : "OMGHelpers (shared script module)",
+			"origin" : "-5.500 0.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "0.000 0.000 0.000",
+			"size" : "512.000 512.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"script" : "'use strict';\n\nclass OMGHelpers {\n\tstatic printObjectValues(obj){\n\t\tif (typeof(obj) !== 'object' || obj === null)\n\t\t\treturn;\n\n\t\tlet keys = Object.keys(obj);\n\t\tfor (let i = 0; i < keys.length; ++i)\n\t\t\tconsole.log(keys[i] + \" - \" + obj[keys[i]]);\n\t}\n}\n\nshared.OMGHelpers = OMGHelpers;",
+				"value" : false
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 115,
+			"image" : "models/empty.json",
+			"ledsource" : false,
+			"locktransforms" : true,
+			"name" : "OMGMatrix (shared script module)",
+			"origin" : "-5.500 0.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "0.000 0.000 0.000",
+			"size" : "512.000 512.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"script" : "'use strict';\n\nlet playDeveloperSplash = undefined;\nlet playIntro = undefined;\nshared.boat_sway = undefined;\nshared.sceneFade = 1;\n\nconst phases = {\n\tSPLASH : {\n\t\tlength : 2.0\n\t},\n\tINTRO : {\n\t\tlength : 4.0\n\t},\n\tMAIN : \"main\"\n}\nshared.phases = phases;\nshared.activePhase = shared.phases.INTRO;\nshared.phaseTime = 0.0;\n\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\tswitch (shared.activePhase) {\n\tcase shared.phases.SPLASH:\n\t\tupdateSplash();\n\t\tbreak;\n\tcase shared.phases.INTRO:\n\t\tupdateIntro();\n\t\tbreak;\n\tcase shared.phases.MAIN:\n\tdefault:\n\t\tupdateMain();\n\t\tbreak;\n\t}\n\t\n\treturn value;\n}\n\n\nfunction updateSplash() {\n\n}\n\n\nfunction updateIntro() {\n\n}\n\n\nfunction updateMain() {\n\n}\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.playIntro != undefined && userProperties.playIntro != playIntro) {\n\t\tplayIntro = userProperties.playIntro;\n\t\tshared.activePhase = shared.phases.INTRO;\n\t}\n\tif (userProperties.playDeveloperSplash != undefined && userProperties.playDeveloperSplash != playDeveloperSplash) {\n\t\tplayDeveloperSplash = userProperties.playDeveloperSplash;\n\t\tshared.activePhase = shared.phases.SPLASH;\n\t}\n\tif (userProperties.boat_sway != undefined && userProperties.boat_sway != shared.boat_sway) {\n\t\tshared.boat_sway = userProperties.boat_sway;\n\t}\n}",
+				"value" : false
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 117,
+			"image" : "models/empty.json",
+			"ledsource" : false,
+			"locktransforms" : true,
+			"name" : "OMGVector (shared script module)",
+			"origin" : "-5.500 0.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "0.000 0.000 0.000",
+			"size" : "512.000 512.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"script" : "'use strict';\n\nclass OMGVector {\n\t/**\n\t * @param {Vec3} vector\n\t * @param {Number} angle\n\t * Rotates around the X axis by angle radians\n\t */\n\tstatic rotX(vector, angle){\n\t\tlet cos = Math.cos(angle);\n\t\tlet sin = Math.sin(angle);\n\t\treturn new Vec3(\n\t\t\tvector.x, \n\t\t\tvector.y * cos - vector.z * sin,\n\t\t\tvector.y * sin + vector.z * cos)\n\t};\n\n\tstatic rotY(vector, angle){\n\t\tlet cos = Math.cos(angle);\n\t\tlet sin = Math.sin(angle);\n\t\treturn new Vec3(\n\t\t\tvector.x * cos + vector.z * sin,\n\t\t\tvector.y, \n\t\t\t-vector.x * sin + vector.z * cos)\n\t};\n\n\tstatic rotZ(vector, angle){\n\t\tlet cos = Math.cos(angle);\n\t\tlet sin = Math.sin(angle);\n\t\treturn new Vec3(\n\t\t\tvector.x * cos - vector.y * sin,\n\t\t\tvector.x * sin + vector.y * cos,\n\t\t\tvector.z)\n\t};\n\n\tstatic rotAxis(vec, angle, axis){\n\t\tlet cos = Math.cos(angle);\n\t\tlet sin = Math.sin(angle);\n\t\treturn new Vec3(\n\t\t\t(cos + (1 - cos) * axis.x * axis.x) * vec.x +\n\t\t\t((1 - cos) * axis.x * axis.y - axis.z * sin) * vec.y +\n\t\t((1 - cos) * axis.x * axis.z + axis.y * sin) * vec.z,\n\n\t\t((1 - cos) * axis.x * axis.y + axis.z * sin) * vec.x +\n\t\t(cos + (1 - cos) * axis.y * axis.y) * vec.y +\n\t\t((1 - cos) * axis.y * axis.z - axis.x * sin) * vec.z,\n\n\t\t((1 - cos) * axis.x * axis.z - axis.y * sin) * vec.x +\n\t\t((1 - cos) * axis.y * axis.z + axis.x * sin) * vec.y +\n\t\t(cos + (1 - cos) * axis.z * axis.z) * vec.z);\n\t};\n\n\tstatic rotVec(vector, angles){\n\t\tlet r = rotX(vector, angles.x);\n\t\tr = rotY(r, angles.y);\n\t\treturn r = rotZ(r, angles.z);\n\t};\n\n\tstatic unrotVec(vector, angles){\n\t\tlet r = rotZ(vector, -angles.x);\n\t\tr = rotY(r, -angles.y);\n\t\treturn r = rotX(r, -angles.z);\n\t};\n\n\tstatic forwardY(angles){\n\t\treturn rotVec(new Vec3(0., 1., 0.), angles);\n\t};\n\n\tstatic forwardZ(angles){\n\t\treturn rotVec(new Vec3(0., 0., 1.), angles);\n\t};\n\n\tstatic forwardX(angles){\n\t\treturn rotVec(new Vec3(1., 0., 0.), angles);\n\t};\n\n\tstatic interpAngle(angle1, angle2, percent){\n\t\tlet a1 = [angle1.x % 360, angle1.y % 360, angle1.z % 360];\n\t\tlet a2 = [angle2.x % 360, angle2.y % 360, angle2.z % 360];\n\t\tlet diff = [];\n\t\tfor (let i = 0; i < 3; i++){\n\t\t\tif (a1[i] < 0)\n\t\t\t\ta1[i] += 360;\n\t\t\tif (a2[i] < 0)\n\t\t\t\ta2[i] += 360;\n\t\t\tdiff[i] = a2[i] - a1[i];\n\t\t\tif (diff[i] > 180)\n\t\t\t\tdiff[i] -= 360;\n\t\t\telse if (diff[i] < -180)\n\t\t\t\tdiff[i] += 360;\n\t\t}\n\t\treturn new Vec3(a1[0] + diff[0] * percent, a1[1] + diff[1] * percent, a1[2] + diff[2] * percent);\n\t};\n\n\tstatic interpPosition(pos1, pos2, percent){\n\t\treturn lerp(pos1, pos2, percent);\n\t}\n\n\t/**\n\t * Interpolates linearly between v1 and v2 based on percent (0 to 1).\n\t * @param {Vec3} v1 First vector\n\t * @param {Vec3} v2 Second vector\n\t * @param {Number} percent interpolation value between 0 and 1\n\t */\n\tstatic lerp(v1, v2, percent){\n\t\tlet x = v1.x + (v2.x - v1.x) * percent;\n\t\tlet y = v1.y + (v2.y - v1.y) * percent;\n\t\tlet z = v1.z + (v2.z - v1.z) * percent;\n\t\treturn new Vec3(x, y, z);\n\t};\n\t\n\n\tstatic magnitude(vec){\n\t\treturn Math.sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);\n\t}\n\n\tstatic normalize(vec){\n\t\treturn vec.multiply(1 / OMGVector.magnitude(vec));\n\t};\n}\n\nshared.OMGVector = OMGVector;",
+				"value" : false
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 115,
+			"image" : "models/empty.json",
+			"ledsource" : false,
+			"locktransforms" : true,
+			"name" : "Scene Manager (script)",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "1.000 1.000 1.000",
+			"size" : "512.000 512.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"script" : "'use strict';\n\nlet playIntro = undefined;\nlet playLogo = undefined;\nlet boatSway = undefined;\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.playIntro != undefined && userProperties.playIntro != playIntro) {\n\t\tplayIntro = userProperties.playIntro;\n\t}\n\tif (userProperties.playLogo != undefined && userProperties.playLogo != playIntro) {\n\t\tplayLogo = userProperties.playLogo;\n\t}\n\tif (userProperties.boatSway != undefined && userProperties.boatSway != boatSway) {\n\t\tboatSway = userProperties.boatSway;\n\t}\n}\n",
+				"value" : false
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
 			"id" : 13,
 			"image" : "models/empty.json",
 			"ledsource" : false,
@@ -56,7 +144,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nlet repeatDelay = 1;\nlet repeatTimer = 0;\n\nlet activeAudio = [];\n\n\n\n\nclass SoundLayer {\n\tconstructor(asset){\n\t\tthis.asset = asset;\n\t\tthis._layer = thisScene.createLayer(asset);\n\t\tthis._layer.volume = 0.5;\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis._layer.pause();\n\t\tthis.repeatTimer = 0;\n\n\t\t// Make wrapped layer's properties and methods accessible (using methods on 'this' seems to cause a crash)\n\t\tlet layerKeys = Object.keys(this._layer);\n\t\tfor (let i = 0; i < layerKeys.length; ++i) {\n\t\t\tthis[layerKeys[i]] = this._layer[layerKeys[i]];\n\t\t}\n\t}\n\n\tupdate() {\n\n\t\t// Fade out then kill layer\n\t\tif (this.fadeOut) {\n\t\t\tthis.fadeTimer += engine.frametime;\n\t\t\tif (this.fadeTimer > SoundLayer.fadeTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis._layer.volume = 0.5 * (1 - (this.fadeTimer / SoundLayer.fadeTime));\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying()) {\n\t\t\tthis._layer.play();\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\tthis.repeatTimer += engine.frametime;\n\n\t\t\t// Start new audio\n\t\t\tif (this.repeatTimer > this.repeatDelay) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new SoundLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tactiveAudio.push(newLayer);\n\t\t\t\tthis.repeatTimer = -9999;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.fadeOut = true;\n\t\tthis.fadeTimer = this.fadeTimer || 0;\n\t}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\nSoundLayer.fadeTime = 1.0;\n\n\n\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\trepeatTimer += engine.frametime;\n\n\t// Update existing audio\n\tactiveAudio.forEach(\n\t\tfunction(soundLayer, index, array) {\n\t\t\tsoundLayer.update();\n\t\t\tif (soundLayer.isDone) {\n\t\t\t\tarray.splice(index, 1);\n\t\t\t}\n\t\t}\n\t);\n\n\treturn value;\n}\n\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\n\t\tstartMusic();\n\t}\n}\n\n\n\n\n// Start fading out all active audio\nfunction fadeAll() {\n\tfor (let i = 0; i < activeAudio.length; ++i) {\n\t\tactiveAudio[i].startFade();\n\t}\n}\n\n\n\n\n// Start new music\nfunction startMusic() {\n\t// Fade out any active music\n\tfadeAll();\n\n\tlet newMusic = undefined;\n\n\tswitch (music) {\n\tcase \"Old\":\n\t\tnewMusic = new SoundLayer(a_TitleMusicOld);\n\t\tnewMusic.repeatDelay = musicRepeatDelayOld;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"New\":\n\t\tnewMusic = new SoundLayer(a_TitleMusic);\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tnewMusic = new SoundLayer(a_TitleAmbient)\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"Ambient\":\n\t\tnewMusic = new SoundLayer(a_TitleAmbient);\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"None\":\n\tdefault:\n\t\tbreak;\n\t}\n}",
+				"script" : "'use strict';\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nlet repeatDelay = 1;\nlet repeatTimer = 0;\n\nlet activeAudio = [];\n\n\n\n// Wrapper for a sound layer that loops itself after the specified repeat delay\nclass SoundLayer {\n\tconstructor(asset){\n\t\tthis.asset = asset;\n\t\tthis._layer = thisScene.createLayer(asset);\n\t\tthis._layer.volume = 0.5;\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis._layer.pause();\n\t\tthis.repeatTimer = 0;\n\t\tthis.repeatDelay = 9999;\n\n\t\t// Make wrapped layer's properties and methods accessible (using methods on 'this' seems to cause a crash)\n\t\tlet layerKeys = Object.keys(this._layer);\n\t\tfor (let i = 0; i < layerKeys.length; ++i) {\n\t\t\tthis[layerKeys[i]] = this._layer[layerKeys[i]];\n\t\t}\n\t}\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.fadeOut) {\n\t\t\tthis.fadeTimer += engine.frametime;\n\t\t\tif (this.fadeTimer > SoundLayer.fadeTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis._layer.volume = 0.5 * (1 - (this.fadeTimer / SoundLayer.fadeTime));\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying()) {\n\t\t\tthis._layer.play();\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\tthis.repeatTimer += engine.frametime;\n\n\t\t\t// Start new audio\n\t\t\tif (this.repeatTimer > this.repeatDelay) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new SoundLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tactiveAudio.push(newLayer);\n\t\t\t\tthis.repeatTimer = -9999;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.fadeOut = true;\n\t\tthis.fadeTimer = this.fadeTimer || 0;\n\t}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\nSoundLayer.fadeTime = 1.0;\n\n\n\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\trepeatTimer += engine.frametime;\n\n\t// Update existing audio\n\tactiveAudio.forEach(\n\t\tfunction(soundLayer, index, array) {\n\t\t\tsoundLayer.update();\n\t\t\tif (soundLayer.isDone) {\n\t\t\t\tarray.splice(index, 1);\n\t\t\t}\n\t\t}\n\t);\n\n\treturn value;\n}\n\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\n\t\tstartMusic();\n\t}\n}\n\n\n\n\n// Start fading out all active audio\nfunction fadeAll() {\n\tfor (let i = 0; i < activeAudio.length; ++i) {\n\t\tactiveAudio[i].startFade();\n\t}\n}\n\n\n\n\n// Start new music\nfunction startMusic() {\n\t// Fade out any active music\n\tfadeAll();\n\n\tlet newMusic = undefined;\n\n\tswitch (music) {\n\tcase \"Old\":\n\t\tnewMusic = new SoundLayer(a_TitleMusicOld);\n\t\tnewMusic.repeatDelay = musicRepeatDelayOld;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"New\":\n\t\tnewMusic = new SoundLayer(a_TitleMusic);\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tnewMusic = new SoundLayer(a_TitleAmbient)\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"Ambient\":\n\t\tnewMusic = new SoundLayer(a_TitleAmbient);\n\t\tnewMusic.repeatDelay = musicRepeatDelay;\n\t\tactiveAudio.push(newMusic);\n\t\tbreak;\n\tcase \"None\":\n\tdefault:\n\t\tbreak;\n\t}\n}",
 				"value" : false
 			}
 		},
@@ -69,7 +157,7 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "sky",
-			"origin" : "1920.000 1336.561 0.000",
+			"origin" : "1920.000 1344.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.760 6.760 6.760",
@@ -105,7 +193,7 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "planet",
-			"origin" : "610.929 1689.830 0.000",
+			"origin" : "611.000 1690.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.760 6.760 6.760",
@@ -139,7 +227,7 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "clouds-1",
-			"origin" : "2073.937 750.136 0.000",
+			"origin" : "2074.000 750.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.760 6.760 6.760",
@@ -151,18 +239,223 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/reflection/effect.json",
+					"id" : 153,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"BLENDMODE" : 6
+							},
+							"constantshadervalues" : 
+							{
+								"alpha" : 
+								{
+									"script" : "'use strict';\n\nlet water_reflection = undefined;\nlet extra_effects = undefined;\n\n/**\n * @param {Number} value (for property 'alpha')\n */\nexport function update(value) {\n\tif (extra_effects)\n\t\treturn water_reflection;\n\treturn 0;\n}\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.water_reflection != undefined && userProperties.water_reflection != water_reflection) {\n\t\twater_reflection = userProperties.water_reflection;\n\t}\n\tif (userProperties.extra_effects != undefined && userProperties.extra_effects != extra_effects) {\n\t\textra_effects = userProperties.extra_effects;\n\t}\n}\n",
+									"value" : 0.25
+								},
+								"direction" : 0,
+								"offset" : -0.089999999999999997
+							},
+							"id" : 154,
+							"textures" : 
+							[
+								null,
+								"masks/reflection_mask_b7ba210caf7ea60f6c1bc53d7ff128af44fd3967"
+							]
+						}
+					],
+					"visible" : true
+				},
+				{
+					"file" : "effects/waterripple/effect.json",
+					"id" : 132,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"animationspeed" : 0.029999999999999999,
+								"ripplestrength" : 0.10000000000000001,
+								"scale" : 1,
+								"scrolldirection" : 3.1400000000000001,
+								"scrollspeed" : 0.029999999999999999
+							},
+							"id" : 133,
+							"textures" : 
+							[
+								null,
+								"masks/waterripple_mask_8031e77678ff36970c82b0b66ebea75bb6a1bd36",
+								"effects/waterripplenormal"
+							]
+						}
+					],
+					"visible" : 
+					{
+						"script" : "'use strict';\n\nlet water_ripples = undefined;\nlet extra_effects = undefined;\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\treturn (extra_effects && water_ripples);\n}\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.water_ripples != undefined && userProperties.water_ripples != water_ripples) {\n\t\twater_ripples = userProperties.water_ripples;\n\t}\n\tif (userProperties.extra_effects != undefined && userProperties.extra_effects != extra_effects) {\n\t\textra_effects = userProperties.extra_effects;\n\t}\n}\n",
+						"value" : true
+					}
+				},
+				{
+					"file" : "effects/waterwaves/effect.json",
+					"id" : 301,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"direction" : 0,
+								"perspective" : 0.01,
+								"scale" : 100,
+								"speed" : 0.5,
+								"strength" : 0
+							},
+							"id" : 302,
+							"textures" : [ null, "waterripple_mask_8031e77678ff36970c82b0b66ebea75bb6a1bd36" ]
+						}
+					],
+					"visible" : 
+					{
+						"script" : "'use strict';\n\nlet water_ripples = undefined;\nlet extra_effects = undefined;\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\treturn (extra_effects && water_ripples);\n}\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.water_ripples != undefined && userProperties.water_ripples != water_ripples) {\n\t\twater_ripples = userProperties.water_ripples;\n\t}\n\tif (userProperties.extra_effects != undefined && userProperties.extra_effects != extra_effects) {\n\t\textra_effects = userProperties.extra_effects;\n\t}\n}\n",
+						"value" : true
+					}
+				},
+				{
+					"file" : "effects/blur/effect.json",
+					"id" : 175,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"id" : 176
+						},
+						{
+							"combos" : 
+							{
+								"KERNEL" : 2
+							},
+							"constantshadervalues" : 
+							{
+								"scale" : "0.009999999776482582 0.009999999776482582"
+							},
+							"id" : 177
+						},
+						{
+							"combos" : 
+							{
+								"KERNEL" : 2,
+								"VERTICAL" : 1
+							},
+							"constantshadervalues" : 
+							{
+								"scale" : "0.009999999776482582 0.009999999776482582"
+							},
+							"id" : 178
+						},
+						{
+							"combos" : 
+							{
+								"BLENDMODE" : 0,
+								"COMPOSITE" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"compositealpha" : 1,
+								"compositecolor" : "1 1 1"
+							},
+							"id" : 179,
+							"textures" : [ null, "waterripple_mask_8031e77678ff36970c82b0b66ebea75bb6a1bd36" ]
+						}
+					],
+					"visible" : false
+				},
+				{
+					"file" : "effects/transform/effect.json",
+					"id" : 279,
+					"name" : "Null Transform (Resets pixel size)",
+					"passes" : 
+					[
+						{
+							"id" : 280
+						}
+					],
+					"visible" : true
+				}
+			],
 			"id" : 22,
 			"image" : "models/ground.json",
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "ground",
-			"origin" : "1920.000 547.330 0.000",
+			"origin" : "1920.000 547.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.761 6.761 6.761",
 			"size" : "568.000 162.000",
 			"solid" : true,
 			"visible" : true
+		},
+		{
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/transform/effect.json",
+					"id" : 318,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"CLAMP" : 0,
+								"MODE" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"angle" : 
+								{
+									"script" : "'use strict';\n\n/**\n * @param {Number} value (for property 'angle')\n */\nexport function update(value) {\n\treturn shared.boat_sway * 0.05 * Math.sin(engine.runtime);\n}\n",
+									"value" : 0
+								},
+								"offset" : 
+								{
+									"script" : "'use strict';\n\n/**\n * @param {Vec2} value (for property 'offset')\n */\nexport function update(value) {\n\treturn new Vec2(0, 0.05 * Math.sin(engine.runtime * 0.761)).multiply(shared.boat_sway);\n}",
+									"value" : "0 0"
+								},
+								"scale" : 
+								{
+									"script" : "'use strict';\n\nlet OMGVector = shared.OMGVector;\n\nconst sway_begin = new Vec2(1, 1);\nconst sway_end = new Vec2(0.9, 0.9);\n\n/**\n * @param {Vec2} value (for property 'scale')\n */\nexport function update(value) {\n\treturn OMGVector.lerp(sway_begin, sway_end, shared.boat_sway);\n}",
+									"value" : "1 1"
+								}
+							},
+							"id" : 319
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 316,
+			"image" : "models/util/fullscreenlayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Boat Sway FX",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"solid" : true,
+			"visible" : 
+			{
+				"user" : "extra_effects",
+				"value" : true
+			}
 		},
 		{
 			"angles" : "0.000 0.000 0.000",
@@ -173,7 +466,7 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "railings",
-			"origin" : "1920.000 212.802 0.000",
+			"origin" : "1920.000 213.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.761 6.761 6.761",
@@ -190,13 +483,124 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "lea",
-			"origin" : "3216.099 826.690 0.000",
+			"origin" : "3216.000 824.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.761 6.761 6.761",
 			"size" : "184.000 245.000",
 			"solid" : true,
 			"visible" : true
+		},
+		{
+			"alpha" : 1.0,
+			"anchor" : "none",
+			"angles" : "0.000 0.000 0.000",
+			"backgroundcolor" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"font" : "fonts/Hall Fetica.ttf",
+			"horizontalalign" : "center",
+			"id" : 167,
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Press to start",
+			"opaquebackground" : false,
+			"origin" : "1920.000 1300.000 0.000",
+			"padding" : 0,
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"pointsize" : 4.0,
+			"scale" : "6.400 6.400 1.000",
+			"size" : "100.000 18.000",
+			"solid" : true,
+			"text" : "Press to start",
+			"verticalalign" : "center",
+			"visible" : false
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 430,
+			"image" : "models/Press to start.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Press to start",
+			"origin" : "1920.000 1199.100 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 1.000",
+			"size" : "98.000 14.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"user" : "show_press_to_start",
+				"value" : true
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 164,
+			"image" : "models/line.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "line",
+			"origin" : "1920.000 1138.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "1189.936 6.761 1.000",
+			"size" : "1.000 2.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"user" : "show_press_to_start",
+				"value" : true
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 422,
+			"image" : "models/buttons_gamepad.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "buttons_gamepad",
+			"origin" : "1684.510 1058.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 1.000",
+			"size" : "40.000 24.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"user" : "show_press_to_start",
+				"value" : true
+			}
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 426,
+			"image" : "models/buttons_kbm.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "buttons_kbm",
+			"origin" : "2149.665 1058.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 1.000",
+			"size" : "64.000 24.000",
+			"solid" : true,
+			"visible" : 
+			{
+				"user" : "show_press_to_start",
+				"value" : true
+			}
 		},
 		{
 			"colorBlendMode" : 0,
@@ -216,7 +620,7 @@
 							},
 							"constantshadervalues" : 
 							{
-								"Resolution Scale" : 0.5
+								"Resolution Scale" : 0.20000000000000001
 							},
 							"id" : 55
 						}
@@ -243,6 +647,32 @@
 								"TRANSFORM" : 1
 							},
 							"id" : 76
+						}
+					],
+					"visible" : false
+				},
+				{
+					"file" : "effects/blend/effect.json",
+					"id" : 107,
+					"name" : "Fade out",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"BLENDMODE" : 2,
+								"WRITEALPHA" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"multiply" : 
+								{
+									"script" : "'use strict';\n\n/**\n * @param {Number} value (for property 'multiply')\n */\nexport function update(value) {\n\treturn (1 - shared.sceneFade);\n}\n",
+									"value" : 0
+								}
+							},
+							"id" : 108,
+							"textures" : [ null, "util/black" ]
 						}
 					],
 					"visible" : false

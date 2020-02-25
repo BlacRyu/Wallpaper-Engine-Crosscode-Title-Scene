@@ -1,0 +1,22 @@
+{
+	"passes" : 
+	[
+		{
+			"blending" : "translucent",
+			"combos" : {},
+			"constantshadervalues" : 
+			{
+				"Alpha" : 
+				{
+					"script" : "'use strict';\n\n/**\n * @param {Number} value (for property 'Alpha')\n */\nexport function update(value) {\n\treturn 0.6 + 0.4 * Math.sin(engine.runtime * 2.0);\n}\n",
+					"value" : 1
+				}
+			},
+			"cullmode" : "nocull",
+			"depthtest" : "disabled",
+			"depthwrite" : "disabled",
+			"shader" : "genericimage2",
+			"textures" : [ "buttons_gamepad" ]
+		}
+	]
+}

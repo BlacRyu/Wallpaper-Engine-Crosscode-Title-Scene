@@ -5,25 +5,38 @@
 	{
 		"properties" : 
 		{
-			"advanced_settings" : 
-			{
-				"order" : 100,
-				"text" : "Advanced Settings",
-				"type" : "bool",
-				"value" : false
-			},
 			"bloom" : 
 			{
-				"condition" : "advanced_settings.value == true",
+				"condition" : "extra_effects.value == true",
 				"fraction" : true,
 				"max" : 3,
 				"min" : 0,
-				"order" : 101,
+				"order" : 103,
 				"precision" : 2,
-				"step" : 0.10000000000000001,
+				"step" : 0.050000000000000003,
 				"text" : "Bloom",
 				"type" : "slider",
-				"value" : 0
+				"value" : 0.59999999999999998
+			},
+			"boat_sway" : 
+			{
+				"condition" : "extra_effects.value == true",
+				"fraction" : true,
+				"max" : 1,
+				"min" : 0,
+				"order" : 104,
+				"precision" : 2,
+				"step" : 0.01,
+				"text" : "Boat Sway",
+				"type" : "slider",
+				"value" : 0.080000000000000002
+			},
+			"extra_effects" : 
+			{
+				"order" : 102,
+				"text" : "Enable Extra Effects",
+				"type" : "bool",
+				"value" : true
 			},
 			"music" : 
 			{
@@ -46,10 +59,10 @@
 						"value" : "None"
 					}
 				],
-				"order" : 102,
+				"order" : 100,
 				"text" : "Music",
 				"type" : "combo",
-				"value" : "New"
+				"value" : "Old"
 			},
 			"schemecolor" : 
 			{
@@ -57,6 +70,34 @@
 				"text" : "ui_browse_properties_scheme_color",
 				"type" : "color",
 				"value" : "0 0.42745098039215684 1"
+			},
+			"show_press_to_start" : 
+			{
+				"order" : 101,
+				"text" : "Show \"Press to start\"",
+				"type" : "bool",
+				"value" : true
+			},
+			"water_reflection" : 
+			{
+				"condition" : "extra_effects.value == true",
+				"fraction" : true,
+				"max" : 1,
+				"min" : 0,
+				"order" : 106,
+				"precision" : 2,
+				"step" : 0.01,
+				"text" : "Water Reflection",
+				"type" : "slider",
+				"value" : 0.29999999999999999
+			},
+			"water_ripples" : 
+			{
+				"condition" : "extra_effects.value == true",
+				"order" : 105,
+				"text" : "Water Ripples",
+				"type" : "bool",
+				"value" : true
 			}
 		}
 	},
