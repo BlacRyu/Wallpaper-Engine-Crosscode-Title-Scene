@@ -3,5 +3,6 @@
 	"clampuvs" : true,
 	"format" : "rgba8888",
 	"nointerpolation" : true,
+	"nomip" : false,
 	"nonpoweroftwo" : true
 }

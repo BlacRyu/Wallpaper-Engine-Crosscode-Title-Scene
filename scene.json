@@ -60,7 +60,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\n\nlet enableDebugText = true;\nlet debugTextLayers = [];\nlet debugTextFlashColor = new Vec3(0.5, 1.0, 1.0);\nlet debugTextColor = new Vec3(1.0, 1.0, 1.0);\nlet debugTextSize = 12;\nlet debugTextAlpha = 0.75;\nlet debugTextFlashScale = 1.01;\n/** How many milliseconds to fade from the flash color to the normal color when the text is updated. */\nlet debugTextFlashTime = 250;\n/** How many milliseconds to display the text before starting to fade out. */\nlet debugTextStickTime = 500;\n/** How many milliseconds to fade out the debug text before removing it. */\nlet debugTextFadeTime = 1500;\n\nexport function update() {\n\tOMGHelpers.update();\n}\n\nclass OMGHelpers {\n\tstatic update() {\n\t\tlet currentTime = new Date().getTime();\n\t\tdebugTextLayers.forEach(\n\t\t\tfunction(textLayer, index, array) {\n\t\t\t\tif (currentTime > textLayer.lastUpdated + (debugTextStickTime + debugTextFadeTime)) {\n\t\t\t\t\ttextLayer.alpha = 0;\n\t\t\t\t\tthisScene.destroyLayer(textLayer);\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t\telse if (currentTime > textLayer.lastUpdated + debugTextStickTime) {\n\t\t\t\t\ttextLayer.color = debugTextColor;\n\t\t\t\t\tlet fadeLerp = (currentTime - (textLayer.lastUpdated + debugTextStickTime)) / debugTextFadeTime;\n\t\t\t\t\ttextLayer.alpha = OMGHelpers.lerp(debugTextAlpha, 0, fadeLerp);\n\t\t\t\t}\n\t\t\t\telse {\n\t\t\t\t\tlet flashLerp = OMGHelpers.clamp((currentTime - textLayer.lastChanged) / debugTextFlashTime);\n\t\t\t\t\ttextLayer.color = OMGHelpers.lerp(debugTextFlashColor, debugTextColor, flashLerp);\n\t\t\t\t\ttextLayer.scale = new Vec3(OMGHelpers.lerp(debugTextFlashScale, 1, flashLerp));\n\t\t\t\t\ttextLayer.alpha = debugTextAlpha;\n\t\t\t\t}\n\t\t\t\ttextLayer.origin = new Vec3(0, engine.canvasSize.y - index * (debugTextSize * 3 + 10), 0);\n\t\t\t\ttextLayer.visible = enableDebugText;\n\t\t\t}\n\t\t);\n\t}\n\n\t/** Prints all key/value pairs present on the object to the console. */\n\tstatic printObjectValues(obj){\n\t\tif (typeof(obj) !== 'object' || obj === null)\n\t\t\treturn;\n\n\t\tlet keys = Object.keys(obj);\n\t\tfor (let i = 0; i < keys.length; ++i)\n\t\t\tconsole.log(keys[i] + \" - \" + obj[keys[i]]);\n\t}\n\n\t/** Restricts a value to remain between two boundary values. \n\t * @param {number} val - The value to be restricted.\n\t * @param {number} min - The lower bound.\n\t * @param {number} max - The upper bound.\n\t*/\n\tstatic clamp(val, min = 0, max = 1) {\n\t\tswitch (typeof val) {\n\t\tcase \"number\":\n\t\t\treturn Math.min(max, Math.max(min, val));\n\t\t\tbreak;\n\t\tdefault:\n\t\t\treturn 0;\n\t\t\tbreak;\n\t\t}\n\t}\n\n\tstatic lerp(v1, v2, percent) {\n\t\tif (typeof(v1) === \"number\")\n\t\t\treturn v1 + (v2 - v1) * percent;\n\t\telse if (v1 instanceof Vec2) {\n\t\t\tlet x = v1.x + (v2.x - v1.x) * percent;\n\t\t\tlet y = v1.y + (v2.y - v1.y) * percent;\n\t\t\treturn new Vec2(x, y);\n\t\t}\n\t\telse if (v1 instanceof Vec3) {\n\t\t\tlet x = v1.x + (v2.x - v1.x) * percent;\n\t\t\tlet y = v1.y + (v2.y - v1.y) * percent;\n\t\t\tlet z = v1.z + (v2.z - v1.z) * percent;\n\t\t\treturn new Vec3(x, y, z);\n\t\t}\n\t\telse\n\t\t\treturn undefined;\n\t}\n\n\tstatic stackTrace() {\n\t\treturn console.log(new Error().stack);\n\t}\n\t\n\t/** Creates or updates a text layer in the corner of the screen. \n\t * @param {string} name - The name of the text layer to create or update.\n\t * @param {string} text - The text that the layer should display.\n\t*/\n\tstatic debugText(name, text) {\n\t\tif (enableDebugText) {\n\t\t\tlet layer = thisScene.getLayer(name);\n\t\t\tif (layer) {\n\t\t\t\tif (layer.text != text) {\n\t\t\t\t\tlayer.text = text;\n\t\t\t\t\tlayer.lastChanged = layer.lastUpdated = new Date().getTime();\n\t\t\t\t\tlayer.color = debugTextFlashColor;\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t\tlayer.lastUpdated = new Date().getTime();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet layerSettings = new Object();\n\t\t\t\tlayerSettings.name = name;\n\t\t\t\tlayerSettings.text = text;\n\t\t\t\tlayerSettings.pointsize = debugTextSize;\n\t\t\t\tlayerSettings.font = \"systemfont_consolas\";\n\t\t\t\tlayerSettings.origin = \"0, \" + (engine.canvasSize.y - debugTextLayers.length * (debugTextSize * 3 + 10)) + \", 0\";\n\t\t\t\tlayerSettings.verticalalign = \"top\";\n\t\t\t\tlayerSettings.horizontalalign = \"left\";\n\t\t\t\tlayerSettings.color = debugTextFlashColor.x + \", \" + debugTextFlashColor.y + \", \" + debugTextFlashColor.z;\n\t\t\t\tlayerSettings.alpha = debugTextAlpha;\n\t\t\t\tlayer = thisScene.createLayer(layerSettings)\n\t\t\t\tlayer.lastChanged = layer.lastUpdated = new Date().getTime();\n\t\t\t\tdebugTextLayers.push(layer);\n\t\t\t}\n\t\t}\n\t}\n}\n\nshared.OMGHelpers = OMGHelpers;",
+				"script" : "'use strict';\n\nlet bEnableDebugText = true;\nlet debugTextLayers = [];\nlet debugTextFlashColor = new Vec3(0.5, 1.0, 1.0);\nlet debugTextColor = new Vec3(1.0, 1.0, 1.0);\nlet debugTextSize = 12;\nlet debugTextAlpha = 0.75;\nlet debugTextFlashScale = 1.01;\n/** How many milliseconds to fade from the flash color to the normal color when the text is updated. */\nlet debugTextFlashTime = 250;\n/** How many milliseconds to display the text before starting to fade out. */\nlet debugTextStickTime = 500;\n/** How many milliseconds to fade out the debug text before removing it. */\nlet debugTextFadeTime = 1500;\n\nexport function update() {\n\tlet currentTime = new Date().getTime();\n\tdebugTextLayers.forEach(\n\t\tfunction(textLayer, index, array) {\n\t\t\tif (currentTime > textLayer.lastUpdated + (debugTextStickTime + debugTextFadeTime)) {\n\t\t\t\ttextLayer.alpha = 0;\n\t\t\t\tthisScene.destroyLayer(textLayer);\n\t\t\t\tarray.splice(index, 1);\n\t\t\t}\n\t\t\telse if (currentTime > textLayer.lastUpdated + debugTextStickTime) {\n\t\t\t\ttextLayer.color = debugTextColor;\n\t\t\t\tlet fadeLerp = (currentTime - (textLayer.lastUpdated + debugTextStickTime)) / debugTextFadeTime;\n\t\t\t\ttextLayer.alpha = OMGHelpers.lerp(debugTextAlpha, 0, fadeLerp);\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet flashLerp = OMGHelpers.clamp((currentTime - textLayer.lastChanged) / debugTextFlashTime);\n\t\t\t\ttextLayer.color = OMGHelpers.lerp(debugTextFlashColor, debugTextColor, flashLerp);\n\t\t\t\ttextLayer.scale = new Vec3(OMGHelpers.lerp(debugTextFlashScale, 1, flashLerp));\n\t\t\t\ttextLayer.alpha = debugTextAlpha;\n\t\t\t}\n\t\t\ttextLayer.origin = new Vec3(0, engine.canvasSize.y - index * (debugTextSize * 3 + 10), 0);\n\t\t\ttextLayer.visible = bEnableDebugText;\n\t\t}\n\t);\n}\n\nclass OMGHelpers {\n\t/** Prints all key/value pairs present on the object to the console. */\n\tstatic printObjectValues(obj){\n\t\tif (typeof(obj) !== 'object' || obj === null)\n\t\t\treturn;\n\n\t\tlet keys = Object.keys(obj);\n\t\tfor (let i = 0; i < keys.length; ++i)\n\t\t\tconsole.log(keys[i] + \" - \" + obj[keys[i]]);\n\t}\n\n\tstatic add(v1, v2) {\n\t\tif (v2 === undefined)\n\t\t\treturn v1;\n\t\tif (typeof v1 === 'number' || typeof v1 === 'string')\n\t\t\treturn v1 + v2;\n\t\telse\n\t\t\treturn v1.add(v2);\n\t}\n\n\t/** Restricts a value to remain between two boundary values. \n\t * @param {number} val - The value to be restricted.\n\t * @param {number} min - The lower bound.\n\t * @param {number} max - The upper bound.\n\t*/\n\tstatic clamp(val, min = 0, max = 1) {\n\t\tswitch (typeof val) {\n\t\tcase \"number\":\n\t\t\treturn Math.min(max, Math.max(min, val));\n\t\t\tbreak;\n\t\tdefault:\n\t\t\treturn 0;\n\t\t\tbreak;\n\t\t}\n\t}\n\n\tstatic lerp(v1, v2, percent) {\n\t\tif (typeof(v1) === \"number\")\n\t\t\treturn v1 + (v2 - v1) * percent;\n\t\telse if (v1 instanceof Vec2) {\n\t\t\tlet x = v1.x + (v2.x - v1.x) * percent;\n\t\t\tlet y = v1.y + (v2.y - v1.y) * percent;\n\t\t\treturn new Vec2(x, y);\n\t\t}\n\t\telse if (v1 instanceof Vec3) {\n\t\t\tlet x = v1.x + (v2.x - v1.x) * percent;\n\t\t\tlet y = v1.y + (v2.y - v1.y) * percent;\n\t\t\tlet z = v1.z + (v2.z - v1.z) * percent;\n\t\t\treturn new Vec3(x, y, z);\n\t\t}\n\t\telse if (v1 instanceof Vec4) {\n\t\t\tlet x = v1.x + (v2.x - v1.x) * percent;\n\t\t\tlet y = v1.y + (v2.y - v1.y) * percent;\n\t\t\tlet z = v1.z + (v2.z - v1.z) * percent;\n\t\t\tlet w = v1.w + (v2.w - v1.w) * percent;\n\t\t\treturn new Vec4(x, y, z, w);\n\t\t}\n\t\telse\n\t\t\treturn undefined;\n\t}\n\n\tstatic stackTrace() {\n\t\treturn console.log(new Error().stack);\n\t}\n\t\n\t/** Creates or updates a text layer in the corner of the screen. \n\t * @param {string} name - The name of the text layer to create or update.\n\t * @param {string} text - The text that the layer should display.\n\t*/\n\tstatic debugText(name, text) {\n\t\tif (bEnableDebugText && name !== undefined && text !== undefined) {\n\t\t\tlet layer = thisScene.getLayer(name);\n\t\t\tif (layer) {\n\t\t\t\tif (layer.text != text) {\n\t\t\t\t\tlayer.text = text;\n\t\t\t\t\tlayer.lastChanged = layer.lastUpdated = new Date().getTime();\n\t\t\t\t\tlayer.color = debugTextFlashColor;\n\t\t\t\t\tlayer.scale = new Vec3(debugTextFlashScale);\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t\tlayer.lastUpdated = new Date().getTime();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet layerSettings = new Object();\n\t\t\t\tlayerSettings.name = name;\n\t\t\t\tlayerSettings.text = text;\n\t\t\t\tlayerSettings.pointsize = debugTextSize;\n\t\t\t\tlayerSettings.font = \"systemfont_consolas\";\n\t\t\t\tlayerSettings.origin = \"0, \" + (engine.canvasSize.y - debugTextLayers.length * (debugTextSize * 3 + 10)) + \", 0\";\n\t\t\t\tlayerSettings.verticalalign = \"top\";\n\t\t\t\tlayerSettings.horizontalalign = \"left\";\n\t\t\t\tlayerSettings.color = debugTextFlashColor.x + \", \" + debugTextFlashColor.y + \", \" + debugTextFlashColor.z;\n\t\t\t\tlayerSettings.alpha = debugTextAlpha;\n\t\t\t\tlayer = thisScene.createLayer(layerSettings)\n\t\t\t\tlayer.lastChanged = layer.lastUpdated = new Date().getTime();\n\t\t\t\tdebugTextLayers.push(layer);\n\t\t\t}\n\t\t}\n\t}\n}\n\nshared.OMGHelpers = OMGHelpers;",
 				"value" : false
 			}
 		},
@@ -102,7 +102,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\n\n\nlet activeInterps = [];\n\n\n\n/** Modifies an object property over a period of time */\nclass Interpolator {\n\tconstructor(targetObject, propertyName, duration) {\n\t\tthis.targetObject = targetObject;\n\t\tthis.propertyName = propertyName;\n\t\tthis.duration = duration;\n\t\tthis.elapsedTime = 0;\n\t}\n\tupdate(dt) {\n\t\tif (this.elapsedTime > this.duration) {\n\t\t\tthis.destroy();\n\t\t}\n\t}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\nclass LinearInterp extends Interpolator {\n\tconstructor(targetObject, propertyName, duration, startVal, endVal) {\n\t\tsuper(targetObject, propertyName);\n\n\t}\n\n\tupdate() {\n\t\tsuper.update();\n\t}\n}\n\nshared.LinearInterp = LinearInterp;\n\n\n\nclass InterpolatorManager {\n\tconstructor() {}\n\n\tupdate(dt){\n\n\t}\n}\nshared.InterpolatorManager = InterpolatorManager;",
+				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n\n/** @type {Interpolator[]} */\nlet activeInterps = [];\n\n\n// Prototype use case:\n// Move the layer \"rfg-fish\" up 256 units over 1 second.\n/* \nlet fishLayer = thisScene.getLayer(\"rfg-fish\");\nnew LinearInterp( {\n\ttargetObject: fishLayer, \n\tpropertyName: origin, \n\tduration: 1, \n\tendOffset: new Vec3(0, 256, 0)\n});\n*/\n\nexport function update() {\n\tactiveInterps.forEach((interp, index, array) => {\n\t\tinterp.update(engine.frametime + (shared.timeNudge || 0));\n\t})\n}\n\n\n\n/** \n * @typedef {Object} InterpolatorParams\n * @property targetObject {object} - The object whose property value will be modified\n * @property propertyName {String} - The name of the property key to be modified\n * @property duration {Number} - How long it will take to reach the final value.\n * @property startValue {object} - An optional starting value. If not set, will use the properties existing value.\n * @property startOffset {object} - An optional offset to the starting value.\n * @property endValue {object} - The value the target variable will reach at the end of the duration. If not set, will use the properties existing value.\n * @property endOffset {object} - An optional offset to the end value.\n */\n\n/** Modifies an object property over a period of time */\nclass Interpolator {\n\t/** \n\t * @param {InterpolatorParams} params - Object containing the parameters for initilization.\n    */\n\tconstructor(params) {\n\t\tthis.targetObject = params.targetObject;\n\t\tthis.propertyName = params.propertyName || \"origin\";\n\t\tthis.duration = params.duration || 1.0;\n\t\tthis.elapsedTime = 0;\n\t\tactiveInterps.push(this);\n\t\t\n\t\tif (params.startValue !== undefined)\n\t\t\tthis.startValue = OMGHelpers.add(params.startValue, params.startOffset);\n\t\telse\n\t\t\tthis.startValue = OMGHelpers.add(this.targetValue, params.startOffset);\n\t\t\n\t\tif (params.endValue !== undefined)\n\t\t\tthis.endValue = OMGHelpers.add(params.endValue, params.endOffset);\n\t\telse\n\t\t\tthis.endValue = OMGHelpers.add(this.targetValue, params.endOffset);\n\t}\n\n\tget targetValue() {return this.targetObject[this.propertyName]}\n\tset targetValue(newValue) {return this.targetObject[this.propertyName] = newValue}\n\n\tupdate(dt) {\n\t\tthis.elapsedTime += dt;\n\t\tif (this.elapsedTime > this.duration) {\n\t\t\tthis.finish();\n\t\t\tthis.destroy();\n\t\t}\n\t\telse\n\t\t\tthis.interpolate();\n\t}\n\n\tinterpolate() {\n\t\t// Perform interpolation here\n\t}\n\n\tfinish() {\n\t\tthis.targetValue = this.endValue;\n\t}\n\n\tdestroy() {\n\t\tactiveInterps.splice(activeInterps.indexOf(this), 1);\n\t}\n}\n\n\n/** Transitions from the start to end value at a constant rate. */\nclass LinearInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, percentage);\n\t}\n}\nshared.LinearInterp = LinearInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, percentage * percentage);\n\t}\n}\nshared.EaseOutInterp = EaseOutInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseInInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, Math.sqrt(percentage));\n\t}\n}\nshared.EaseInInterp = EaseInInterp;",
 				"value" : false
 			}
 		},
@@ -123,7 +123,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n// const ScenePhase = shared.ScenePhase || function() {return shared.ScenePhase};\n// const SceneManager = shared.SceneManager || function() {return shared.SceneManager};\n\n// These values aren't defined yet, but assigning them here gives us intellisense.\n// We assign the actual class pointers in init().\nlet ScenePhase = shared.ScenePhase; \nlet SceneManager = shared.SceneManager;\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nconst fadeDuration = 1.0;\nlet currentTime = new Date().getTime();\n\nlet activeMusic = [];\nlet activeSounds = [];\n\n\n\nexport function init(value) {\n\tScenePhase = shared.ScenePhase;\n\tSceneManager = shared.SceneManager;\n}\n\n\nexport function update(value) {\n\tAudioManager.update();\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\t\tif (SceneManager.phase === ScenePhase.MAIN || SceneManager.phase === ScenePhase.MAIN.INTRO)\n\t\t\tAudioManager.startMusic();\n\t}\n}\n\n\n\nclass AudioManager {\n\tstatic update() {\n\t\tcurrentTime = new Date().getTime();\n\n\t\t// Update active sounds\n\t\tactiveSounds.forEach(\n\t\t\tfunction(soundLayer, index, array) {\n\t\t\t\tsoundLayer.update();\n\t\t\t\tif (soundLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\n\t\t// Update active music\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.update();\n\t\t\t\tif (musicLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\t}\n\n\n\t/** Start fading out all active audio */\n\tstatic stopMusic() {\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.startFade();\n\t\t\t}\n\t\t);\n\t}\n\n\t/** Fades out any current music and begins playing the music set in the settings. */\n\tstatic startMusic() {\n\t\t// Fade out any active music\n\t\tthis.stopMusic();\n\n\t\tlet newMusic = undefined;\n\n\t\tswitch (music) {\n\t\tcase \"Old\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusicOld, 0.5, musicRepeatDelayOld);\n\t\t\tbreak;\n\t\tcase \"New\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusic, 0.5, musicRepeatDelay);\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"Ambient\":\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"None\":\n\t\tdefault:\n\t\t\tbreak;\n\t\t}\n\n\t\treturn newMusic;\n\t}\n\n\t/** Plays a single sound\n\t * @returns {SoundLayer} The created sound layer\n\t */\n\tstatic playSound(asset) {\n\t\treturn new SoundLayer(asset);\n\t}\n}\nshared.AudioManager = AudioManager;\n\n\n\nclass AudioLayer {\n\tconstructor(asset, volume = 0.5) {\n\t\tthis.asset = asset;\n\t\tlet layerSettings = new Object();\n\t\tlayerSettings.sound = asset;\n\t\tlayerSettings.volume = volume;\n\t\tlayerSettings.startsilent = true;\n\t\tthis._layer = thisScene.createLayer(layerSettings);\n\t}\n\n\tget volume() {return this._layer.volume}\n\tset volume(val) {return this._layer.volume = val}\n\tpause() {_layer.pause()}\n\tstop() {_layer.stop()}\n\tplay() {_layer.play()}\n\n\tupdate() {}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\n\n/** Plays the given sound asset once, then destroys itself. */\nclass SoundLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5) {\n\t\tsuper(asset, volume);\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis.hasPlayed = false;\n\t\tactiveSounds.push(this);\n\t}\n\n\tupdate() {\n\t\t// Delayed start to prevent audio hiccups\n\t\tif (!this._layer.isPlaying()) {\n\t\t\tif (!this.hasPlayed) {\n\t\t\t\tthis._layer.play();\n\t\t\t\tthis.hasPlayed = true;\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t}\n\t}\n}\n\n\n\n/** Audio layer that crossfade loops itself after the specified repeat delay */\nclass MusicLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){\n\t\tsuper(asset, volume);\n\t\tthis.unfadedVolume = volume;\n\t\tthis._layer.playbackmode = \"single\";\n\t\t/** How many seconds to play before the track loops */\n\t\tthis.repeatDelay = repeatDelay;\n\t\t/** The track will fade out for this many seconds whenever it loops */\n\t\tthis.fadeDuration = fadeDuration;\n\t\tactiveMusic.push(this);\n\t}\n\t\n\tset volume(val) {return super.volume = this.unfadedVolume = val}\n\tget volume() {return this.unfadedVolume}\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.fadeOut) {\n\t\t\tif (currentTime > this.fadeEndTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet fadeLerp = (currentTime - this.fadeStartTime) / (this.fadeEndTime - this.fadeStartTime);\n\t\t\t\tthis._layer.volume = OMGHelpers.lerp(this.unfadedVolume, 0, fadeLerp);\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying() && this.startTime === undefined) {\n\t\t\tthis._layer.play();\n\t\t\tthis.startTime = currentTime;\n\t\t\tthis.endTime = this.startTime + this.repeatDelay * 1000;\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\t// Start new audio\n\t\t\tif (currentTime > this.endTime) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new MusicLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tnewLayer.volume = this.unfadedVolume;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.fadeOut = true;\n\t\tthis.fadeStartTime = currentTime;\n\t\tthis.fadeEndTime = currentTime + this.fadeDuration * 1000;\n\t}\n}",
+				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n// const ScenePhase = shared.ScenePhase || function() {return shared.ScenePhase};\n// const SceneManager = shared.SceneManager || function() {return shared.SceneManager};\n\n// These values aren't defined yet, but assigning them here gives us intellisense.\n// We assign the actual class pointers in init().\nlet ScenePhase = shared.ScenePhase; \nlet SceneManager = shared.SceneManager;\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nconst fadeDuration = 1.0;\nlet currentTime = new Date().getTime();\n\nlet activeMusic = [];\nlet activeSounds = [];\n\n\n\nexport function init(value) {\n\tScenePhase = shared.ScenePhase;\n\tSceneManager = shared.SceneManager;\n}\n\n\nexport function update(value) {\n\tAudioManager.update();\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\t\tif (SceneManager.phase === ScenePhase.MAIN || SceneManager.phase === ScenePhase.MAIN.INTRO)\n\t\t\tAudioManager.startMusic();\n\t}\n}\n\n\n\nclass AudioManager {\n\tstatic update() {\n\t\tcurrentTime = new Date().getTime();\n\n\t\t// Update active sounds\n\t\tactiveSounds.forEach(\n\t\t\tfunction(soundLayer, index, array) {\n\t\t\t\tsoundLayer.update();\n\t\t\t\tif (soundLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\n\t\t// Update active music\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.update();\n\t\t\t\tif (musicLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\t}\n\n\tstatic isMusicPlaying() {\n\t\tlet bMusicPlaying = false;\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tif (musicLayer.isPlaying)\n\t\t\t\t\tbMusicPlaying = true;\n\t\t\t}\n\t\t);\n\t\treturn bMusicPlaying;\n\t}\n\n\n\t/** Start fading out all active audio */\n\tstatic stopMusic() {\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.startFade();\n\t\t\t}\n\t\t);\n\t}\n\n\t/** Fades out any current music and begins playing the music set in the settings. */\n\tstatic startMusic() {\n\t\t// Fade out any active music\n\t\tthis.stopMusic();\n\n\t\tlet newMusic = undefined;\n\n\t\tswitch (music) {\n\t\tcase \"Old\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusicOld, 0.5, musicRepeatDelayOld);\n\t\t\tbreak;\n\t\tcase \"New\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusic, 0.5, musicRepeatDelay);\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"Ambient\":\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"None\":\n\t\tdefault:\n\t\t\tbreak;\n\t\t}\n\n\t\treturn newMusic;\n\t}\n\n\t/** Plays a single sound\n\t * @returns {SoundLayer} The created sound layer\n\t */\n\tstatic playSound(asset) {\n\t\treturn new SoundLayer(asset);\n\t}\n}\nshared.AudioManager = AudioManager;\n\n\n\nclass AudioLayer {\n\tconstructor(asset, volume = 0.5) {\n\t\tthis.asset = asset;\n\t\tlet layerSettings = new Object();\n\t\tlayerSettings.sound = asset;\n\t\tlayerSettings.volume = volume;\n\t\tlayerSettings.startsilent = true;\n\t\tthis._layer = thisScene.createLayer(layerSettings);\n\t}\n\n\tget volume() {return this._layer.volume}\n\tset volume(val) {return this._layer.volume = val}\n\tpause() {_layer.pause()}\n\tstop() {_layer.stop()}\n\tplay() {_layer.play()}\n\n\tupdate() {}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\n\n/** Plays the given sound asset once, then destroys itself. */\nclass SoundLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5) {\n\t\tsuper(asset, volume);\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis.hasPlayed = false;\n\t\tactiveSounds.push(this);\n\t}\n\n\tupdate() {\n\t\t// Delayed start to prevent audio hiccups\n\t\tif (!this._layer.isPlaying()) {\n\t\t\tif (!this.hasPlayed) {\n\t\t\t\tthis._layer.play();\n\t\t\t\tthis.hasPlayed = true;\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t}\n\t}\n}\n\n\n\n/** Audio layer that crossfade loops itself after the specified repeat delay */\nclass MusicLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){\n\t\tsuper(asset, volume);\n\t\tthis.unfadedVolume = volume;\n\t\tthis._layer.playbackmode = \"single\";\n\t\t/** How many seconds to play before the track loops */\n\t\tthis.repeatDelay = repeatDelay;\n\t\t/** The track will fade out for this many seconds whenever it loops */\n\t\tthis.fadeDuration = fadeDuration;\n\t\tactiveMusic.push(this);\n\t}\n\t\n\tset volume(val) {return super.volume = this.unfadedVolume = val}\n\tget volume() {return this.unfadedVolume}\n\tget isPlaying() {return (this.startTime && !this.bFadingOut)}\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.bFadingOut) {\n\t\t\tif (currentTime > this.fadeEndTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet fadeLerp = (currentTime - this.fadeStartTime) / (this.fadeEndTime - this.fadeStartTime);\n\t\t\t\tthis._layer.volume = OMGHelpers.lerp(this.unfadedVolume, 0, fadeLerp);\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying() && this.startTime === undefined) {\n\t\t\tthis._layer.play();\n\t\t\tthis.startTime = currentTime;\n\t\t\tthis.endTime = this.startTime + this.repeatDelay * 1000;\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\t// Start new audio\n\t\t\tif (currentTime > this.endTime) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new MusicLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tnewLayer.volume = this.unfadedVolume;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.bFadingOut = true;\n\t\tthis.fadeStartTime = currentTime;\n\t\tthis.fadeEndTime = currentTime + this.fadeDuration * 1000;\n\t}\n}",
 				"value" : false
 			}
 		},
@@ -144,7 +144,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\nconst AudioManager = shared.AudioManager;\n\nlet show_developer_splash = undefined;\nlet show_intro = undefined;\nshared.boat_sway = undefined;\nlet a_splashSound = engine.registerAsset(\"sounds/radicalfish-bubbles.ogg\");\n\n// \"Private variables\"\nlet activePhase = undefined;\nlet phaseTime = 0.0;\nlet phaseProgress = 0.0;\n\n\nconst ScenePhase = {\n\tSPLASH : {\n\t\tname : \"splash\",\n\t\tlength : 5.0,\n\t\tget nextPhase() {return (show_intro ? ScenePhase.MAIN.INTRO : ScenePhase.MAIN)},\n\t\tupdate : function() {\n\t\t\t;\n\t\t},\n\t\tinit : function() {\n\t\t\tAudioManager.stopMusic();\n\t\t\tlet bubbles = AudioManager.playSound(a_splashSound);\n\t\t\tbubbles.volume = 1;\n\t\t}\n\t},\n\tMAIN : {\n\t\tINTRO : {\n\t\t\tname : \"main.intro\",\n\t\t\tlength : 4.0,\n\t\t\tget nextPhase() {return ScenePhase.MAIN},\n\t\t\tupdate : function() {\n\n\t\t\t},\n\t\t\tinit : function() {\n\t\t\t\tAudioManager.startMusic();\n\t\t\t}\n\t\t},\n\t\tname : \"main\",\n\t\tget nextPhase() {return null},\n\t\tlength : 0.0,\n\t\tupdate : function() {\n\n\t\t},\n\t\tinit : function() {\n\t\t\t\n\t\t}\n\t}\n}\nshared.ScenePhase = ScenePhase;\n\n\nclass SceneManager {\n\tstatic update() {\n\t\t//console.log(activePhase.name);\n\t\tif (activePhase) {\n\t\t\t// Advance phase\n\t\t\tphaseTime += engine.frametime;\n\t\t\tif (phaseTime > activePhase.length && activePhase.nextPhase) {\n\t\t\t\tSceneManager.setPhase(activePhase.nextPhase);\n\t\t\t}\n\t\t\tif (activePhase.length != 0)\n\t\t\t\tshared.phaseProgress = phaseTime / activePhase.length;\n\t\t\telse \n\t\t\t\tshared.phaseProgress = 0.0;\n\n\t\t\t// Update active phase\n\t\t\tif (typeof(activePhase.update) === \"function\")\n\t\t\t\tactivePhase.update();\n\t\t}\n\t}\n\t\n\tstatic get phase() {return activePhase}\n\n\tstatic get phaseTime() {return phaseTime}\n\n/** Initialize the currently active phase */\n\tstatic setPhase(newPhase, bInit = true) {\n\t\tactivePhase = newPhase;\n\t\tphaseTime = 0;\n\t\tif (bInit && typeof(activePhase.init) === \"function\")\n\t\t\tactivePhase.init();\n\t}\n}\nshared.SceneManager = SceneManager;\n\n\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function init(value) {\n\treturn value;\n}\n\n\n\n/**\n * @param {Boolean} value (for property 'visible')\n */\nlet firstUpdate = true;\nexport function update(value) {\n\t// skip first update to let loading lag settle\n\tif (firstUpdate) {\n\t\tfirstUpdate = false;\n\n\t\t// Set the initial phase in update(), as init() runs before we get user properties\n\t\tif (show_developer_splash)\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\telse if (show_intro)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t\telse\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN);\n\t}\n\telse\n\t\tSceneManager.update();\n\treturn value;\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.show_intro != undefined && userProperties.show_intro != show_intro) {\n\t\tshow_intro = userProperties.show_intro;\n\t\t// Jump to intro when enabled\n\t\tif (show_intro && SceneManager.phase)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t}\n\tif (userProperties.show_developer_splash != undefined && userProperties.show_developer_splash != show_developer_splash) {\n\t\tshow_developer_splash = userProperties.show_developer_splash;\n\t\t// Jump to splash screen when enabled\n\t\tif (show_developer_splash && SceneManager.phase) {\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\t}\n\t}\n\tif (userProperties.boat_sway != undefined && userProperties.boat_sway != shared.boat_sway) {\n\t\tshared.boat_sway = userProperties.boat_sway;\n\t}\n}",
+				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\nconst AudioManager = shared.AudioManager;\nconst LinearInterp = shared.LinearInterp;\nconst EaseOutInterp = shared.EaseOutInterp;\nconst EaseInInterp = shared.EaseInInterp;\n\nlet show_developer_splash = undefined;\nlet show_intro = undefined;\nshared.boat_sway = undefined;\nshared.timeNudge = 0;\nlet a_splashSound = engine.registerAsset(\"sounds/radicalfish-bubbles.ogg\");\n\n// \"Private variables\"\nlet activePhase = undefined;\nlet phaseTime = 0.0;\nlet phaseProgress = 0.0;\n\n\nconst ScenePhase = {\n\tSPLASH : {\n\t\tname : \"splash\",\n\t\tlength : 5.0,\n\t\ttimeLine : [\n\t\t\t{\n\t\t\t\ttime : 0,\n\t\t\t\texecute() {\n\t\t\t\t\tnew EaseInInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-fish\"), \n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 1404, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1296, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew EaseInInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-fish\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 0.3,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-text\"),\n\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\tstartValue: new Vec3(6.761, 0, 6.761),\n\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 6.761),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.5,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"html5-logo\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 1663.875, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1555.875, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.7,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 648, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1080, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\"),\n\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\tstartValue: new Vec3(6.761, 13.522, 0),\n\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.9,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.1\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"impact-logo\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 543.375, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 435.375, 0),\n\t\t\t\t\t\tduration: 0.1\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 4.5,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.5\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t],\n\t\tupdate : function() {\n\t\t\twhile (ScenePhase.SPLASH.nextEvent < ScenePhase.SPLASH.timeLine.length && phaseTime > ScenePhase.SPLASH.timeLine[ScenePhase.SPLASH.nextEvent].time) {\n\t\t\t\tScenePhase.SPLASH.timeLine[ScenePhase.SPLASH.nextEvent].execute();\n\t\t\t\t++ScenePhase.SPLASH.nextEvent;\n\t\t\t}\n\t\t},\n\t\tinit : function() {\n\t\t\tAudioManager.stopMusic();\n\t\t\tlet bubbles = AudioManager.playSound(a_splashSound);\n\t\t\tbubbles.volume = 1;\n\t\t\tScenePhase.SPLASH.nextEvent = 0;\n\t\t\tthisScene.getLayer(\"rfg-text\").scale = new Vec3(6.761, 0, 6.761);\n\t\t\tthisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").origin = new Vec3(1920, 1663.875, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").origin = new Vec3(1920, 648, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").scale = new Vec3(6.761, 13.522, 0);\n\t\t\tthisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"impact-logo\").origin = new Vec3(1920, 543.375, 0);\n\t\t\tthisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t},\n\t\tend : function() {\n\t\t\tthisScene.getLayer(\"rfg-fish\").origin = new Vec3(1920, 1404, 0);\n\t\t\tthisScene.getLayer(\"rfg-fish\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"rfg-text\").scale = new Vec3(6.761, 0, 6.761);\n\t\t\tthisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").origin = new Vec3(1920, 1663.875, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").origin = new Vec3(1920, 648, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").scale = new Vec3(6.761, 13.522, 0);\n\t\t\tthisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"impact-logo\").origin = new Vec3(1920, 543.375, 0);\n\t\t\tnew LinearInterp({\n\t\t\t\ttargetObject: thisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0),\n\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\tstartValue: 1,\n\t\t\t\tendValue: 0,\n\t\t\t\tduration: 0.5\n\t\t\t});\n\t\t},\n\t\tget nextPhase() {return (show_intro ? ScenePhase.MAIN.INTRO : ScenePhase.MAIN)}\n\t},\n\tMAIN : {\n\t\tINTRO : {\n\t\t\tname : \"main.intro\",\n\t\t\tlength : 4.0,\n\t\t\tupdate : function() {\n\n\t\t\t},\n\t\t\tinit : function() {\n\t\t\t\tif (!AudioManager.isMusicPlaying())\n\t\t\t\t\tAudioManager.startMusic();\n\t\t\t},\n\t\t\tend : function() {\n\n\t\t\t},\n\t\t\tget nextPhase() {return ScenePhase.MAIN}\n\t\t},\n\t\tname : \"main\",\n\t\tget nextPhase() {return null},\n\t\tlength : 0.0,\n\t\tupdate : function() {\n\n\t\t},\n\t\tinit : function() {\n\t\t\tif (!AudioManager.isMusicPlaying())\n\t\t\t\tAudioManager.startMusic();\n\t\t},\n\t\tend : function() {\n\n\t\t}\n\t}\n}\nshared.ScenePhase = ScenePhase;\n\n\nclass SceneManager {\n\tstatic update() {\n\t\t//console.log(activePhase.name);\n\t\tif (activePhase) {\n\t\t\t// Advance phase\n\t\t\tphaseTime += engine.frametime;\n\t\t\tif (phaseTime > activePhase.length && activePhase.nextPhase) {\n\t\t\t\tSceneManager.advancePhase();\n\t\t\t}\n\t\t\tif (activePhase.length !== 0)\n\t\t\t\tshared.phaseProgress = phaseTime / activePhase.length;\n\t\t\telse \n\t\t\t\tshared.phaseProgress = 0.0;\n\n\t\t\t// Update active phase\n\t\t\tif (typeof(activePhase.update) === \"function\")\n\t\t\t\tactivePhase.update();\n\t\t}\n\t}\n\t\n\tstatic get phase() {return activePhase}\n\n\tstatic get phaseTime() {return phaseTime}\n\n\tstatic advancePhase() {\n\t\tif (typeof(activePhase.end) === \"function\")\n\t\t\tactivePhase.end();\n\t\tSceneManager.setPhase(activePhase.nextPhase);\n\t}\n\n/** Initialize the currently active phase */\n\tstatic setPhase(newPhase, bInit = true) {\n\t\tactivePhase = newPhase;\n\t\tphaseTime = 0;\n\t\tif (bInit && typeof(activePhase.init) === \"function\")\n\t\t\tactivePhase.init();\n\t}\n}\nshared.SceneManager = SceneManager;\n\n\n\n/** Initialize in update instead of init, since we want to load user settings before we initialize */\nlet bFirstUpdate = true;\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\tif (bFirstUpdate) {\n\t\tbFirstUpdate = false;\n\n\t\t// Set the initial phase in update(), as init() runs before we get user properties\n\t\tif (show_developer_splash)\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\telse if (show_intro)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t\telse\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN);\n\t}\n\telse\n\t\tSceneManager.update();\n\treturn value;\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.show_intro !== undefined && userProperties.show_intro !== show_intro) {\n\t\tshow_intro = userProperties.show_intro;\n\t\t// Jump to intro when enabled\n\t\tif (show_intro && SceneManager.phase)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t}\n\tif (userProperties.show_developer_splash !== undefined && userProperties.show_developer_splash !== show_developer_splash) {\n\t\tshow_developer_splash = userProperties.show_developer_splash;\n\t\t// Jump to splash screen when enabled\n\t\tif (show_developer_splash && SceneManager.phase) {\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\t}\n\t}\n\tif (userProperties.boat_sway !== undefined && userProperties.boat_sway !== shared.boat_sway) {\n\t\tshared.boat_sway = userProperties.boat_sway;\n\t}\n}",
 				"value" : false
 			}
 		},
@@ -160,7 +160,7 @@
 			"origin" : "1920.000 1344.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.760 6.760 6.760",
+			"scale" : "6.761 6.761 6.760",
 			"size" : "568.000 395.000",
 			"solid" : true,
 			"visible" : true
@@ -169,25 +169,6 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
-			"effects" : 
-			[
-				{
-					"file" : "effects/transform/effect.json",
-					"id" : 48,
-					"name" : "",
-					"passes" : 
-					[
-						{
-							"combos" : 
-							{
-								"MODE" : 1
-							},
-							"id" : 49
-						}
-					],
-					"visible" : true
-				}
-			],
 			"id" : 36,
 			"image" : "models/planet.json",
 			"ledsource" : false,
@@ -196,7 +177,7 @@
 			"origin" : "611.000 1690.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.760 6.760 6.760",
+			"scale" : "6.761 6.761 6.760",
 			"size" : "180.000 315.000",
 			"solid" : true,
 			"visible" : true
@@ -230,7 +211,7 @@
 			"origin" : "2074.000 750.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.760 6.760 6.760",
+			"scale" : "6.761 6.761 6.760",
 			"size" : "524.000 130.000",
 			"solid" : true,
 			"visible" : true
@@ -239,6 +220,7 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"dependencies" : [ 22 ],
 			"effects" : 
 			[
 				{
@@ -363,15 +345,22 @@
 							"combos" : 
 							{
 								"BLENDMODE" : 0,
-								"COMPOSITE" : 0
+								"COMPOSITE" : 0,
+								"COMPOSITEMONO" : 0
 							},
 							"constantshadervalues" : 
 							{
 								"compositealpha" : 1,
-								"compositecolor" : "1 1 1"
+								"compositecolor" : "1 1 1",
+								"compositeoffset" : "0 0"
 							},
 							"id" : 179,
-							"textures" : [ null, "waterripple_mask_8031e77678ff36970c82b0b66ebea75bb6a1bd36" ]
+							"textures" : 
+							[
+								null,
+								"waterripple_mask_8031e77678ff36970c82b0b66ebea75bb6a1bd36",
+								"_rt_imageLayerComposite_22_b"
+							]
 						}
 					],
 					"visible" : false
@@ -383,6 +372,10 @@
 					"passes" : 
 					[
 						{
+							"combos" : 
+							{
+								"CLAMP" : 0
+							},
 							"id" : 280
 						}
 					],
@@ -611,7 +604,7 @@
 			"image" : "models/util/fullscreenlayer.json",
 			"ledsource" : false,
 			"locktransforms" : false,
-			"name" : "Splash BaseBG",
+			"name" : "Splash baseBG",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"solid" : true,
@@ -632,7 +625,7 @@
 						{
 							"constantshadervalues" : 
 							{
-								"alpha" : 1
+								"alpha" : 0
 							},
 							"id" : 298,
 							"textures" : [ null, "util/white" ]
@@ -646,11 +639,7 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "rfg-fish",
-			"origin" : 
-			{
-				"script" : "'use strict';\nlet OMGHelpers = shared.OMGHelpers;\nlet OMGVector = shared.OMGVector;\nlet SceneManager = shared.SceneManager;\nlet ScenePhase = shared.ScenePhase;\n\nconst slideInTime = 0.3;\nconst slideOutTime = 0.3;\nconst away_position = new Vec3(1920, 1404, 0);\nconst home_position = new Vec3(1920, 1296, 0);\nconst away_alpha = 0;\nconst home_alpha = 1;\nlet interp = 0;\n\n/**\n * @param {Vec3} value (for property 'origin')\n */\nexport function update(value) {\n\t // slide in 0.3 seconds\n\tif (SceneManager.phase === ScenePhase.SPLASH) {\n\t\tinterp = SceneManager.phaseTime / slideInTime;\n\t}\n\telse {\n\t\t//slide out 0.3 seconds\n\t\tinterp = OMGHelpers.clamp(interp - engine.frametime / slideOutTime);\n\t}\n\tlet newAlpha = OMGHelpers.lerp(away_alpha, home_alpha, OMGHelpers.clamp(interp));\n\tthisLayer.getEffect(0).getMaterial(0).alpha = newAlpha;\n\n\tlet newPosition = OMGVector.lerp(away_position, home_position, OMGHelpers.clamp(interp));\n\treturn newPosition;\n}\n",
-				"value" : "1920.000 1296.000 0.000"
-			},
+			"origin" : "1920.000 1296.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"scale" : "6.761 6.761 1.000",
@@ -662,6 +651,26 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 429,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 431,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
 			"id" : 202,
 			"image" : "models/rfg-text.json",
 			"ledsource" : false,
@@ -672,48 +681,6 @@
 			"perspective" : false,
 			"scale" : "6.761 6.761 1.000",
 			"size" : "254.000 46.000",
-			"solid" : true,
-			"visible" : true
-		},
-		{
-			"colorBlendMode" : 0,
-			"copybackground" : true,
-			"effects" : 
-			[
-				{
-					"file" : "effects/blend/effect.json",
-					"id" : 107,
-					"name" : "Fade out",
-					"passes" : 
-					[
-						{
-							"combos" : 
-							{
-								"BLENDMODE" : 0,
-								"WRITEALPHA" : 0
-							},
-							"constantshadervalues" : 
-							{
-								"multiply" : 
-								{
-									"script" : "'use strict';\nlet OMGHelpers = shared.OMGHelpers;\nlet SceneManager = shared.SceneManager;\nlet ScenePhase = shared.ScenePhase;\n\nlet fadeTime = 0.5;\n\n/**\n * @param {Number} value (for property 'multiply')\n */\nexport function update(value) {\n\tif (SceneManager.phase === ScenePhase.SPLASH) // fade in after 4.5 seconds over 0.5 seconds\n\t\tvalue = OMGHelpers.clamp(OMGHelpers.lerp(0, 1, (SceneManager.phaseTime - 4.5) / fadeTime));\n\telse //fade out over 0.5 seconds\n\t\tvalue = OMGHelpers.clamp(value - engine.frametime * 2.0);\n\treturn value;\n}\n",
-									"value" : 0
-								}
-							},
-							"id" : 108,
-							"textures" : [ null, "util/black" ]
-						}
-					],
-					"visible" : true
-				}
-			],
-			"id" : 51,
-			"image" : "models/util/fullscreenlayer.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "Splash BlackBG",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
 			"solid" : true,
 			"visible" : true
 		},
@@ -749,7 +716,7 @@
 			"image" : "models/util/fullscreenlayer.json",
 			"ledsource" : false,
 			"locktransforms" : false,
-			"name" : "Splash White Fade",
+			"name" : "Splash whiteBG",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
 			"solid" : true,
@@ -759,6 +726,26 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 339,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 340,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
 			"id" : 174,
 			"image" : "models/tech-intro-bg.json",
 			"ledsource" : false,
@@ -770,12 +757,32 @@
 			"scale" : "6.761 6.761 1.000",
 			"size" : "568.000 320.000",
 			"solid" : true,
-			"visible" : false
+			"visible" : true
 		},
 		{
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 331,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0.0099999997764825821
+							},
+							"id" : 333,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
 			"id" : 191,
 			"image" : "models/html5-logo.json",
 			"ledsource" : false,
@@ -787,12 +794,32 @@
 			"scale" : "6.761 6.761 1.000",
 			"size" : "107.000 151.000",
 			"solid" : true,
-			"visible" : false
+			"visible" : true
 		},
 		{
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 343,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 345,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
 			"id" : 195,
 			"image" : "models/impact-logo.json",
 			"ledsource" : false,
@@ -804,7 +831,89 @@
 			"scale" : "6.761 6.761 1.000",
 			"size" : "255.000 79.000",
 			"solid" : true,
-			"visible" : false
+			"visible" : true
+		},
+		{
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/blend/effect.json",
+					"id" : 107,
+					"name" : "Opacity",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"BLENDMODE" : 0,
+								"WRITEALPHA" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"multiply" : 
+								{
+									"value" : 0
+								}
+							},
+							"id" : 108,
+							"textures" : [ null, "util/black" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 51,
+			"image" : "models/util/fullscreenlayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Splash blackBG",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/blend/effect.json",
+					"id" : 352,
+					"name" : "Opacity",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"BLENDMODE" : 0,
+								"WRITEALPHA" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"multiply" : 
+								{
+									"value" : 0
+								}
+							},
+							"id" : 353,
+							"textures" : [ null, "util/black" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 349,
+			"image" : "models/util/fullscreenlayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Intro blackBG",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"solid" : true,
+			"visible" : true
 		},
 		{
 			"angles" : "0.000 0.000 0.000",
@@ -921,6 +1030,22 @@
 			},
 			"verticalalign" : "top",
 			"visible" : false
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"id" : 251,
+			"locktransforms" : false,
+			"maxtime" : 5.0,
+			"mintime" : 1.0,
+			"muteineditor" : true,
+			"name" : "Silence (Volume enabler)",
+			"origin" : "-100.000 -100.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"playbackmode" : "loop",
+			"scale" : "1.000 1.000 1.000",
+			"sound" : [ "sounds/silence.ogg" ],
+			"startsilent" : true,
+			"volume" : 0.5
 		}
 	]
 }
