@@ -102,7 +102,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n\n/** @type {Interpolator[]} */\nlet activeInterps = [];\n\n\n// Prototype use case:\n// Move the layer \"rfg-fish\" up 256 units over 1 second.\n/* \nlet fishLayer = thisScene.getLayer(\"rfg-fish\");\nnew LinearInterp( {\n\ttargetObject: fishLayer, \n\tpropertyName: origin, \n\tduration: 1, \n\tendOffset: new Vec3(0, 256, 0)\n});\n*/\n\nexport function update() {\n\tactiveInterps.forEach((interp, index, array) => {\n\t\tinterp.update(engine.frametime + (shared.timeNudge || 0));\n\t})\n}\n\n\n\n/** \n * @typedef {Object} InterpolatorParams\n * @property targetObject {object} - The object whose property value will be modified\n * @property propertyName {String} - The name of the property key to be modified\n * @property duration {Number} - How long it will take to reach the final value.\n * @property startValue {object} - An optional starting value. If not set, will use the properties existing value.\n * @property startOffset {object} - An optional offset to the starting value.\n * @property endValue {object} - The value the target variable will reach at the end of the duration. If not set, will use the properties existing value.\n * @property endOffset {object} - An optional offset to the end value.\n */\n\n/** Modifies an object property over a period of time */\nclass Interpolator {\n\t/** \n\t * @param {InterpolatorParams} params - Object containing the parameters for initilization.\n    */\n\tconstructor(params) {\n\t\tthis.targetObject = params.targetObject;\n\t\tthis.propertyName = params.propertyName || \"origin\";\n\t\tthis.duration = params.duration || 1.0;\n\t\tthis.elapsedTime = 0;\n\t\tactiveInterps.push(this);\n\t\t\n\t\tif (params.startValue !== undefined)\n\t\t\tthis.startValue = OMGHelpers.add(params.startValue, params.startOffset);\n\t\telse\n\t\t\tthis.startValue = OMGHelpers.add(this.targetValue, params.startOffset);\n\t\t\n\t\tif (params.endValue !== undefined)\n\t\t\tthis.endValue = OMGHelpers.add(params.endValue, params.endOffset);\n\t\telse\n\t\t\tthis.endValue = OMGHelpers.add(this.targetValue, params.endOffset);\n\t}\n\n\tget targetValue() {return this.targetObject[this.propertyName]}\n\tset targetValue(newValue) {return this.targetObject[this.propertyName] = newValue}\n\n\tupdate(dt) {\n\t\tthis.elapsedTime += dt;\n\t\tif (this.elapsedTime > this.duration) {\n\t\t\tthis.finish();\n\t\t\tthis.destroy();\n\t\t}\n\t\telse\n\t\t\tthis.interpolate();\n\t}\n\n\tinterpolate() {\n\t\t// Perform interpolation here\n\t}\n\n\tfinish() {\n\t\tthis.targetValue = this.endValue;\n\t}\n\n\tdestroy() {\n\t\tactiveInterps.splice(activeInterps.indexOf(this), 1);\n\t}\n}\n\n\n/** Transitions from the start to end value at a constant rate. */\nclass LinearInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, percentage);\n\t}\n}\nshared.LinearInterp = LinearInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, percentage * percentage);\n\t}\n}\nshared.EaseOutInterp = EaseOutInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseInInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, Math.sqrt(percentage));\n\t}\n}\nshared.EaseInInterp = EaseInInterp;",
+				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n\n/** @type {Interpolator[]} */\nlet activeInterps = [];\n\n\nexport function update() {\n\tactiveInterps.forEach((interp, index, array) => {\n\t\tinterp.update(engine.frametime + (shared.timeNudge || 0));\n\t});\n\tshared.timeNudge = 0;\n}\n\n\n\n/** \n * @typedef {Object} InterpolatorParams\n * @property targetObject {object} - The object whose property value will be modified\n * @property propertyName {String} - The name of the property key to be modified\n * @property duration {Number} - How long it will take to reach the final value.\n * @property startValue {object} - An optional starting value. If not set, will use the properties existing value.\n * @property startOffset {object} - An optional offset to the starting value.\n * @property endValue {object} - The value the target variable will reach at the end of the duration. If not set, will use the properties existing value.\n * @property endOffset {object} - An optional offset to the end value.\n */\n\n/** Modifies an object property over a period of time */\nclass Interpolator {\n\t/** \n\t * @param {InterpolatorParams} params - Object containing the parameters for initilization.\n    */\n\tconstructor(params) {\n\t\tthis.targetObject = params.targetObject;\n\t\tthis.propertyName = params.propertyName || \"origin\";\n\t\tthis.duration = params.duration || 1.0;\n\t\tthis.elapsedTime = 0;\n\t\tactiveInterps.push(this);\n\t\t\n\t\tif (params.startValue !== undefined)\n\t\t\tthis.startValue = OMGHelpers.add(params.startValue, params.startOffset);\n\t\telse\n\t\t\tthis.startValue = OMGHelpers.add(this.targetValue, params.startOffset);\n\t\t\n\t\tif (params.endValue !== undefined)\n\t\t\tthis.endValue = OMGHelpers.add(params.endValue, params.endOffset);\n\t\telse\n\t\t\tthis.endValue = OMGHelpers.add(this.targetValue, params.endOffset);\n\t}\n\n\tget targetValue() {return this.targetObject[this.propertyName]}\n\tset targetValue(newValue) {return this.targetObject[this.propertyName] = newValue}\n\n\tupdate(dt) {\n\t\tthis.elapsedTime += dt;\n\t\tif (this.elapsedTime > this.duration) {\n\t\t\tthis.finish();\n\t\t\tthis.destroy();\n\t\t}\n\t\telse\n\t\t\tthis.interpolate();\n\t}\n\n\tinterpolate() {\n\t\t// Perform interpolation here\n\t}\n\n\tfinish() {\n\t\tthis.targetValue = this.endValue;\n\t}\n\n\tdestroy() {\n\t\tactiveInterps.splice(activeInterps.indexOf(this), 1);\n\t}\n}\n\n\n/** Transitions from the start to end value at a constant rate. */\nclass LinearInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, percentage);\n\t}\n}\nshared.LinearInterp = LinearInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, percentage * (2 - percentage));\n\t}\n}\nshared.EaseOutInterp = EaseOutInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutStrongInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, Math.pow(percentage-1, 3) + 1);\n\t}\n}\nshared.EaseOutStrongInterp = EaseOutStrongInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseInInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, Math.pow(percentage, 2));\n\t}\n}\nshared.EaseInInterp = EaseInInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first, quickly in the middle, then slow again at the end. */\nclass EaseInOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet x = this.elapsedTime / this.duration;\n\t\tthis.targetValue = OMGHelpers.lerp(this.startValue, this.endValue, x * x * (3 - 2 * x));\n\t}\n}\nshared.EaseInOutInterp = EaseInOutInterp;",
 				"value" : false
 			}
 		},
@@ -123,7 +123,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n// const ScenePhase = shared.ScenePhase || function() {return shared.ScenePhase};\n// const SceneManager = shared.SceneManager || function() {return shared.SceneManager};\n\n// These values aren't defined yet, but assigning them here gives us intellisense.\n// We assign the actual class pointers in init().\nlet ScenePhase = shared.ScenePhase; \nlet SceneManager = shared.SceneManager;\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nconst fadeDuration = 1.0;\nlet currentTime = new Date().getTime();\n\nlet activeMusic = [];\nlet activeSounds = [];\n\n\n\nexport function init(value) {\n\tScenePhase = shared.ScenePhase;\n\tSceneManager = shared.SceneManager;\n}\n\n\nexport function update(value) {\n\tAudioManager.update();\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\t\tif (SceneManager.phase === ScenePhase.MAIN || SceneManager.phase === ScenePhase.MAIN.INTRO)\n\t\t\tAudioManager.startMusic();\n\t}\n}\n\n\n\nclass AudioManager {\n\tstatic update() {\n\t\tcurrentTime = new Date().getTime();\n\n\t\t// Update active sounds\n\t\tactiveSounds.forEach(\n\t\t\tfunction(soundLayer, index, array) {\n\t\t\t\tsoundLayer.update();\n\t\t\t\tif (soundLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\n\t\t// Update active music\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.update();\n\t\t\t\tif (musicLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\t}\n\n\tstatic isMusicPlaying() {\n\t\tlet bMusicPlaying = false;\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tif (musicLayer.isPlaying)\n\t\t\t\t\tbMusicPlaying = true;\n\t\t\t}\n\t\t);\n\t\treturn bMusicPlaying;\n\t}\n\n\n\t/** Start fading out all active audio */\n\tstatic stopMusic() {\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.startFade();\n\t\t\t}\n\t\t);\n\t}\n\n\t/** Fades out any current music and begins playing the music set in the settings. */\n\tstatic startMusic() {\n\t\t// Fade out any active music\n\t\tthis.stopMusic();\n\n\t\tlet newMusic = undefined;\n\n\t\tswitch (music) {\n\t\tcase \"Old\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusicOld, 0.5, musicRepeatDelayOld);\n\t\t\tbreak;\n\t\tcase \"New\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusic, 0.5, musicRepeatDelay);\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"Ambient\":\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"None\":\n\t\tdefault:\n\t\t\tbreak;\n\t\t}\n\n\t\treturn newMusic;\n\t}\n\n\t/** Plays a single sound\n\t * @returns {SoundLayer} The created sound layer\n\t */\n\tstatic playSound(asset) {\n\t\treturn new SoundLayer(asset);\n\t}\n}\nshared.AudioManager = AudioManager;\n\n\n\nclass AudioLayer {\n\tconstructor(asset, volume = 0.5) {\n\t\tthis.asset = asset;\n\t\tlet layerSettings = new Object();\n\t\tlayerSettings.sound = asset;\n\t\tlayerSettings.volume = volume;\n\t\tlayerSettings.startsilent = true;\n\t\tthis._layer = thisScene.createLayer(layerSettings);\n\t}\n\n\tget volume() {return this._layer.volume}\n\tset volume(val) {return this._layer.volume = val}\n\tpause() {_layer.pause()}\n\tstop() {_layer.stop()}\n\tplay() {_layer.play()}\n\n\tupdate() {}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\n\n/** Plays the given sound asset once, then destroys itself. */\nclass SoundLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5) {\n\t\tsuper(asset, volume);\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis.hasPlayed = false;\n\t\tactiveSounds.push(this);\n\t}\n\n\tupdate() {\n\t\t// Delayed start to prevent audio hiccups\n\t\tif (!this._layer.isPlaying()) {\n\t\t\tif (!this.hasPlayed) {\n\t\t\t\tthis._layer.play();\n\t\t\t\tthis.hasPlayed = true;\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t}\n\t}\n}\n\n\n\n/** Audio layer that crossfade loops itself after the specified repeat delay */\nclass MusicLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){\n\t\tsuper(asset, volume);\n\t\tthis.unfadedVolume = volume;\n\t\tthis._layer.playbackmode = \"single\";\n\t\t/** How many seconds to play before the track loops */\n\t\tthis.repeatDelay = repeatDelay;\n\t\t/** The track will fade out for this many seconds whenever it loops */\n\t\tthis.fadeDuration = fadeDuration;\n\t\tactiveMusic.push(this);\n\t}\n\t\n\tset volume(val) {return super.volume = this.unfadedVolume = val}\n\tget volume() {return this.unfadedVolume}\n\tget isPlaying() {return (this.startTime && !this.bFadingOut)}\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.bFadingOut) {\n\t\t\tif (currentTime > this.fadeEndTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet fadeLerp = (currentTime - this.fadeStartTime) / (this.fadeEndTime - this.fadeStartTime);\n\t\t\t\tthis._layer.volume = OMGHelpers.lerp(this.unfadedVolume, 0, fadeLerp);\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying() && this.startTime === undefined) {\n\t\t\tthis._layer.play();\n\t\t\tthis.startTime = currentTime;\n\t\t\tthis.endTime = this.startTime + this.repeatDelay * 1000;\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\t// Start new audio\n\t\t\tif (currentTime > this.endTime) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new MusicLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tnewLayer.volume = this.unfadedVolume;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.bFadingOut = true;\n\t\tthis.fadeStartTime = currentTime;\n\t\tthis.fadeEndTime = currentTime + this.fadeDuration * 1000;\n\t}\n}",
+				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\n// const ScenePhase = shared.ScenePhase || function() {return shared.ScenePhase};\n// const SceneManager = shared.SceneManager || function() {return shared.SceneManager};\n\n// These values aren't defined yet, but assigning them here gives us intellisense.\n// We assign the actual class pointers in init().\nlet ScenePhase = shared.ScenePhase; \nlet SceneManager = shared.SceneManager;\n\nlet a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet music = undefined;\n\nconst musicRepeatDelayOld = 37.0;\nconst musicRepeatDelay = 36.25;\nconst fadeDuration = 1.0;\nlet currentTime = new Date().getTime();\n\nlet activeMusic = [];\nlet activeSounds = [];\n\n\n\nexport function init(value) {\n\tScenePhase = shared.ScenePhase;\n\tSceneManager = shared.SceneManager;\n}\n\n\nexport function update(value) {\n\tAudioManager.update();\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != music) {\n\t\tmusic = userProperties.music;\n\t\tif (SceneManager.phase === ScenePhase.MAIN || SceneManager.phase === ScenePhase.MAIN.INTRO)\n\t\t\tAudioManager.startMusic();\n\t}\n}\n\n\n\nclass AudioManager {\n\tstatic update() {\n\t\tcurrentTime = new Date().getTime();\n\n\t\t// Update active sounds\n\t\tactiveSounds.forEach(\n\t\t\tfunction(soundLayer, index, array) {\n\t\t\t\tsoundLayer.update();\n\t\t\t\tif (soundLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\n\t\t// Update active music\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.update();\n\t\t\t\tif (musicLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\t}\n\n\tstatic isMusicPlaying() {\n\t\tlet bMusicPlaying = false;\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tif (musicLayer.isPlaying)\n\t\t\t\t\tbMusicPlaying = true;\n\t\t\t}\n\t\t);\n\t\treturn bMusicPlaying;\n\t}\n\n\n\t/** Start fading out all active audio */\n\tstatic stopMusic() {\n\t\tactiveMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.startFade();\n\t\t\t}\n\t\t);\n\t}\n\n\t/** Fades out any current music and begins playing the music set in the settings. */\n\tstatic startMusic() {\n\t\t// Fade out any active music\n\t\tthis.stopMusic();\n\n\t\tlet newMusic = undefined;\n\n\t\tswitch (music) {\n\t\tcase \"Old\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusicOld, 0.5, musicRepeatDelayOld);\n\t\t\tbreak;\n\t\tcase \"New\":\n\t\t\tnewMusic = new MusicLayer(a_TitleMusic, 0.5, musicRepeatDelay);\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"Ambient\":\n\t\t\tnewMusic = new MusicLayer(a_TitleAmbient, 0.5, musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"None\":\n\t\tdefault:\n\t\t\tbreak;\n\t\t}\n\n\t\treturn newMusic;\n\t}\n\n\t/** Plays a single sound\n\t * @returns {SoundLayer} The created sound layer\n\t */\n\tstatic playSound(asset, volume = 0.5) {\n\t\treturn new SoundLayer(asset, volume);\n\t}\n}\nshared.AudioManager = AudioManager;\n\n\n\nclass AudioLayer {\n\tconstructor(asset, volume = 0.5) {\n\t\tthis.asset = asset;\n\t\tlet layerSettings = new Object();\n\t\tlayerSettings.sound = asset;\n\t\tlayerSettings.volume = volume;\n\t\tlayerSettings.startsilent = true;\n\t\tthis._layer = thisScene.createLayer(layerSettings);\n\t}\n\n\tget volume() {return this._layer.volume}\n\tset volume(val) {return this._layer.volume = val}\n\tpause() {_layer.pause()}\n\tstop() {_layer.stop()}\n\tplay() {_layer.play()}\n\n\tupdate() {}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis._layer.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\n\n/** Plays the given sound asset once, then destroys itself. */\nclass SoundLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5) {\n\t\tsuper(asset, volume);\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis.hasPlayed = false;\n\t\tactiveSounds.push(this);\n\t}\n\n\tupdate() {\n\t\t// Delayed start to prevent audio hiccups\n\t\tif (!this._layer.isPlaying()) {\n\t\t\tif (!this.hasPlayed) {\n\t\t\t\tthis._layer.play();\n\t\t\t\tthis.hasPlayed = true;\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t}\n\t}\n}\n\n\n\n/** Audio layer that crossfade loops itself after the specified repeat delay */\nclass MusicLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){\n\t\tsuper(asset, volume);\n\t\tthis.unfadedVolume = volume;\n\t\tthis._layer.playbackmode = \"single\";\n\t\t/** How many seconds to play before the track loops */\n\t\tthis.repeatDelay = repeatDelay;\n\t\t/** The track will fade out for this many seconds whenever it loops */\n\t\tthis.fadeDuration = fadeDuration;\n\t\tactiveMusic.push(this);\n\t}\n\t\n\tset volume(val) {return super.volume = this.unfadedVolume = val}\n\tget volume() {return this.unfadedVolume}\n\tget isPlaying() {return (this.startTime && !this.bFadingOut)}\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.bFadingOut) {\n\t\t\tif (currentTime > this.fadeEndTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet fadeLerp = (currentTime - this.fadeStartTime) / (this.fadeEndTime - this.fadeStartTime);\n\t\t\t\tthis._layer.volume = OMGHelpers.lerp(this.unfadedVolume, 0, fadeLerp);\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying() && this.startTime === undefined) {\n\t\t\tthis._layer.play();\n\t\t\tthis.startTime = currentTime;\n\t\t\tthis.endTime = this.startTime + this.repeatDelay * 1000;\n\t\t}\n\t\t// Fade out and repeat when music ends\n\t\telse {\n\t\t\t// Start new audio\n\t\t\tif (currentTime > this.endTime) {\n\t\t\t\tthis.startFade();\n\t\t\t\tlet newLayer = new MusicLayer(this.asset);\n\t\t\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\t\t\tnewLayer.volume = this.unfadedVolume;\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tthis.bFadingOut = true;\n\t\tthis.fadeStartTime = currentTime;\n\t\tthis.fadeEndTime = currentTime + this.fadeDuration * 1000;\n\t}\n}",
 				"value" : false
 			}
 		},
@@ -139,12 +139,12 @@
 			"origin" : "1920.000 1080.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "1.000 1.000 1.000",
+			"scale" : "100.000 100.000 1.000",
 			"size" : "512.000 512.000",
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\nconst AudioManager = shared.AudioManager;\nconst LinearInterp = shared.LinearInterp;\nconst EaseOutInterp = shared.EaseOutInterp;\nconst EaseInInterp = shared.EaseInInterp;\n\nlet show_developer_splash = undefined;\nlet show_intro = undefined;\nshared.boat_sway = undefined;\nshared.timeNudge = 0;\nlet a_splashSound = engine.registerAsset(\"sounds/radicalfish-bubbles.ogg\");\n\n// \"Private variables\"\nlet activePhase = undefined;\nlet phaseTime = 0.0;\nlet phaseProgress = 0.0;\n\n\nconst ScenePhase = {\n\tSPLASH : {\n\t\tname : \"splash\",\n\t\tlength : 5.0,\n\t\ttimeLine : [\n\t\t\t{\n\t\t\t\ttime : 0,\n\t\t\t\texecute() {\n\t\t\t\t\tnew EaseInInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-fish\"), \n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 1404, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1296, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew EaseInInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-fish\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 0.3,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-text\"),\n\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\tstartValue: new Vec3(6.761, 0, 6.761),\n\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 6.761),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.5,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"html5-logo\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 1663.875, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1555.875, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.7,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 648, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1080, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\"),\n\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\tstartValue: new Vec3(6.761, 13.522, 0),\n\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.9,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.1\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"impact-logo\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 543.375, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 435.375, 0),\n\t\t\t\t\t\tduration: 0.1\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 4.5,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.5\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t],\n\t\tupdate : function() {\n\t\t\twhile (ScenePhase.SPLASH.nextEvent < ScenePhase.SPLASH.timeLine.length && phaseTime > ScenePhase.SPLASH.timeLine[ScenePhase.SPLASH.nextEvent].time) {\n\t\t\t\tScenePhase.SPLASH.timeLine[ScenePhase.SPLASH.nextEvent].execute();\n\t\t\t\t++ScenePhase.SPLASH.nextEvent;\n\t\t\t}\n\t\t},\n\t\tinit : function() {\n\t\t\tAudioManager.stopMusic();\n\t\t\tlet bubbles = AudioManager.playSound(a_splashSound);\n\t\t\tbubbles.volume = 1;\n\t\t\tScenePhase.SPLASH.nextEvent = 0;\n\t\t\tthisScene.getLayer(\"rfg-text\").scale = new Vec3(6.761, 0, 6.761);\n\t\t\tthisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").origin = new Vec3(1920, 1663.875, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").origin = new Vec3(1920, 648, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").scale = new Vec3(6.761, 13.522, 0);\n\t\t\tthisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"impact-logo\").origin = new Vec3(1920, 543.375, 0);\n\t\t\tthisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t},\n\t\tend : function() {\n\t\t\tthisScene.getLayer(\"rfg-fish\").origin = new Vec3(1920, 1404, 0);\n\t\t\tthisScene.getLayer(\"rfg-fish\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"rfg-text\").scale = new Vec3(6.761, 0, 6.761);\n\t\t\tthisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").origin = new Vec3(1920, 1663.875, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").origin = new Vec3(1920, 648, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").scale = new Vec3(6.761, 13.522, 0);\n\t\t\tthisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"impact-logo\").origin = new Vec3(1920, 543.375, 0);\n\t\t\tnew LinearInterp({\n\t\t\t\ttargetObject: thisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0),\n\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\tstartValue: 1,\n\t\t\t\tendValue: 0,\n\t\t\t\tduration: 0.5\n\t\t\t});\n\t\t},\n\t\tget nextPhase() {return (show_intro ? ScenePhase.MAIN.INTRO : ScenePhase.MAIN)}\n\t},\n\tMAIN : {\n\t\tINTRO : {\n\t\t\tname : \"main.intro\",\n\t\t\tlength : 4.0,\n\t\t\tupdate : function() {\n\n\t\t\t},\n\t\t\tinit : function() {\n\t\t\t\tif (!AudioManager.isMusicPlaying())\n\t\t\t\t\tAudioManager.startMusic();\n\t\t\t},\n\t\t\tend : function() {\n\n\t\t\t},\n\t\t\tget nextPhase() {return ScenePhase.MAIN}\n\t\t},\n\t\tname : \"main\",\n\t\tget nextPhase() {return null},\n\t\tlength : 0.0,\n\t\tupdate : function() {\n\n\t\t},\n\t\tinit : function() {\n\t\t\tif (!AudioManager.isMusicPlaying())\n\t\t\t\tAudioManager.startMusic();\n\t\t},\n\t\tend : function() {\n\n\t\t}\n\t}\n}\nshared.ScenePhase = ScenePhase;\n\n\nclass SceneManager {\n\tstatic update() {\n\t\t//console.log(activePhase.name);\n\t\tif (activePhase) {\n\t\t\t// Advance phase\n\t\t\tphaseTime += engine.frametime;\n\t\t\tif (phaseTime > activePhase.length && activePhase.nextPhase) {\n\t\t\t\tSceneManager.advancePhase();\n\t\t\t}\n\t\t\tif (activePhase.length !== 0)\n\t\t\t\tshared.phaseProgress = phaseTime / activePhase.length;\n\t\t\telse \n\t\t\t\tshared.phaseProgress = 0.0;\n\n\t\t\t// Update active phase\n\t\t\tif (typeof(activePhase.update) === \"function\")\n\t\t\t\tactivePhase.update();\n\t\t}\n\t}\n\t\n\tstatic get phase() {return activePhase}\n\n\tstatic get phaseTime() {return phaseTime}\n\n\tstatic advancePhase() {\n\t\tif (typeof(activePhase.end) === \"function\")\n\t\t\tactivePhase.end();\n\t\tSceneManager.setPhase(activePhase.nextPhase);\n\t}\n\n/** Initialize the currently active phase */\n\tstatic setPhase(newPhase, bInit = true) {\n\t\tactivePhase = newPhase;\n\t\tphaseTime = 0;\n\t\tif (bInit && typeof(activePhase.init) === \"function\")\n\t\t\tactivePhase.init();\n\t}\n}\nshared.SceneManager = SceneManager;\n\n\n\n/** Initialize in update instead of init, since we want to load user settings before we initialize */\nlet bFirstUpdate = true;\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\tif (bFirstUpdate) {\n\t\tbFirstUpdate = false;\n\n\t\t// Set the initial phase in update(), as init() runs before we get user properties\n\t\tif (show_developer_splash)\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\telse if (show_intro)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t\telse\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN);\n\t}\n\telse\n\t\tSceneManager.update();\n\treturn value;\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.show_intro !== undefined && userProperties.show_intro !== show_intro) {\n\t\tshow_intro = userProperties.show_intro;\n\t\t// Jump to intro when enabled\n\t\tif (show_intro && SceneManager.phase)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t}\n\tif (userProperties.show_developer_splash !== undefined && userProperties.show_developer_splash !== show_developer_splash) {\n\t\tshow_developer_splash = userProperties.show_developer_splash;\n\t\t// Jump to splash screen when enabled\n\t\tif (show_developer_splash && SceneManager.phase) {\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\t}\n\t}\n\tif (userProperties.boat_sway !== undefined && userProperties.boat_sway !== shared.boat_sway) {\n\t\tshared.boat_sway = userProperties.boat_sway;\n\t}\n}",
+				"script" : "'use strict';\nconst OMGHelpers = shared.OMGHelpers;\nconst AudioManager = shared.AudioManager;\nconst LinearInterp = shared.LinearInterp;\nconst EaseOutInterp = shared.EaseOutInterp;\nconst EaseOutStrongInterp = shared.EaseOutStrongInterp;\nconst EaseInInterp = shared.EaseInInterp;\nconst EaseInOutInterp = shared.EaseInOutInterp;\n\nlet show_developer_splash = undefined;\nlet show_intro = undefined;\nshared.boat_sway = undefined;\nshared.timeNudge = 0;\nlet a_splashSound = engine.registerAsset(\"sounds/radicalfish-bubbles.ogg\");\nlet a_blingSound = engine.registerAsset(\"sounds/logo-instant-bling.ogg\");\n\n// \"Private variables\"\nlet activePhase = undefined;\nlet phaseTime = 0.0;\nlet phaseProgress = 0.0;\n\n\nconst ScenePhase = {\n\tSPLASH : {\n\t\tname : \"splash\",\n\t\tlength : 5.0,\n\t\ttimeLine : [\n\t\t\t{\n\t\t\t\ttime : 0,\n\t\t\t\texecute() {\n\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-fish\"), \n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 1404, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1296, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-fish\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 0.3,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-text\"),\n\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\tstartValue: new Vec3(6.761, 0, 6.761),\n\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 6.761),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.5,\n\t\t\t\texecute() {\n\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"html5-logo\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 1663.875, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1555.875, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.7,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 648, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 1080, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"tech-intro-bg\"),\n\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\tstartValue: new Vec3(6.761, 13.522, 0),\n\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 2.9,\n\t\t\t\texecute() {\n\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"alpha\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.1\n\t\t\t\t\t});\n\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"impact-logo\"),\n\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\tstartValue: new Vec3(1920, 543.375, 0),\n\t\t\t\t\t\tendValue: new Vec3(1920, 435.375, 0),\n\t\t\t\t\t\tduration: 0.1\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\ttime : 4.5,\n\t\t\t\texecute() {\n\t\t\t\t\tnew LinearInterp({\n\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\tduration: 0.5\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\n\t\t],\n\t\tupdate : function() {\n\t\t\tlet thisPhase = ScenePhase.SPLASH;\n\t\t\twhile (thisPhase.nextEvent < thisPhase.timeLine.length && phaseTime > thisPhase.timeLine[thisPhase.nextEvent].time) {\n\t\t\t\tthisPhase.timeLine[thisPhase.nextEvent].execute();\n\t\t\t\t++thisPhase.nextEvent;\n\t\t\t}\n\t\t},\n\t\tinit : function() {\n\t\t\tAudioManager.stopMusic();\n\t\t\tlet bubbles = AudioManager.playSound(a_splashSound);\n\t\t\tbubbles.volume = 1;\n\t\t\tScenePhase.SPLASH.nextEvent = 0;\n\t\t\tthisScene.getLayer(\"rfg-text\").scale = new Vec3(6.761, 0, 6.761);\n\t\t\tthisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").origin = new Vec3(1920, 1663.875, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").origin = new Vec3(1920, 648, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").scale = new Vec3(6.761, 13.522, 0);\n\t\t\tthisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"impact-logo\").origin = new Vec3(1920, 543.375, 0);\n\t\t\tthisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t},\n\t\tend : function() {\n\t\t\tthisScene.getLayer(\"rfg-fish\").origin = new Vec3(1920, 1404, 0);\n\t\t\tthisScene.getLayer(\"rfg-fish\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"rfg-text\").scale = new Vec3(6.761, 0, 6.761);\n\t\t\tthisScene.getLayer(\"rfg-text\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"Splash whiteBG\").getEffect(0).getMaterial(0).multiply = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"html5-logo\").origin = new Vec3(1920, 1663.875, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").origin = new Vec3(1920, 648, 0);\n\t\t\tthisScene.getLayer(\"tech-intro-bg\").scale = new Vec3(6.761, 13.522, 0);\n\t\t\tthisScene.getLayer(\"impact-logo\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\tthisScene.getLayer(\"impact-logo\").origin = new Vec3(1920, 543.375, 0);\n\t\t\tnew LinearInterp({\n\t\t\t\ttargetObject: thisScene.getLayer(\"Splash blackBG\").getEffect(0).getMaterial(0),\n\t\t\t\tpropertyName: \"multiply\", \n\t\t\t\tstartValue: 1,\n\t\t\t\tendValue: 0,\n\t\t\t\tduration: 0.5\n\t\t\t});\n\t\t},\n\t\tget nextPhase() {return (show_intro ? ScenePhase.MAIN.INTRO : ScenePhase.MAIN)}\n\t},\n\tMAIN : {\n\t\tINTRO : {\n\t\t\tname : \"main.intro\",\n\t\t\tlength : 4.0,\n\t\t\ttimeLine : [\n\t\t\t\t{\n\t\t\t\t\ttime : 0,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"lineGlow\"), \n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(6.761, 0, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tduration: 0.5\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\ttime : 0.1,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tnew EaseInOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusLeft\"), \n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(0, 0, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseInOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusRight\"), \n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(0, 0, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\ttime : 0.3,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusLeft\"), \n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 1080, 0),\n\t\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusRight\"), \n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 1080, 0),\n\t\t\t\t\t\t\tduration: 0.3\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\ttime : 0.6,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tAudioManager.playSound(a_blingSound, 0.8);\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"logoBG\").getEffect(0).getMaterial(0), \n\t\t\t\t\t\t\tpropertyName: \"alpha\",\n\t\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\t\tduration: 0.8\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"logoBG\"),\n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(5.071, 0, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tduration: 0.8\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"logoFill\").getEffect(0).getMaterial(0), \n\t\t\t\t\t\t\tpropertyName: \"alpha\",\n\t\t\t\t\t\t\tstartValue: 0,\n\t\t\t\t\t\t\tendValue: 1,\n\t\t\t\t\t\t\tduration: 0.5\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusLeft\"), \n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(0, 0, 0),\n\t\t\t\t\t\t\tduration: 0.4\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusLeft\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\t\tpropertyName: \"alpha\",\n\t\t\t\t\t\t\tstartValue: 1,\n\t\t\t\t\t\t\tendValue: 0,\n\t\t\t\t\t\t\tduration: 0.4\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusRight\"), \n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(0, 0, 0),\n\t\t\t\t\t\t\tduration: 0.4\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusRight\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\t\tpropertyName: \"alpha\",\n\t\t\t\t\t\t\tstartValue: 1,\n\t\t\t\t\t\t\tendValue: 0,\n\t\t\t\t\t\t\tduration: 0.4\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"lineGlow\"), \n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(6.761, 0, 0),\n\t\t\t\t\t\t\tduration: 0.4\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusEmpty\").getEffect(0).getMaterial(0),\n\t\t\t\t\t\t\tpropertyName: \"alpha\",\n\t\t\t\t\t\t\tstartValue: 1,\n\t\t\t\t\t\t\tendValue: 0,\n\t\t\t\t\t\t\tduration: 1.5\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"rhombusEmpty\"),\n\t\t\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\t\t\tstartValue: new Vec3(6.761, 6.761, 0),\n\t\t\t\t\t\t\tendValue: new Vec3(20.283, 20.283, 0),\n\t\t\t\t\t\t\tduration: 1.5\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\ttime : 1.4,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tnew EaseInInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"Intro blackBG\").getEffect(0).getMaterial(0), \n\t\t\t\t\t\t\tpropertyName: \"multiply\",\n\t\t\t\t\t\t\tendValue: 0,\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"logoBG\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 1688.5, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"logoFill\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 1688.5, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"sky\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 1338.54, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"planet\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(608.49, 1690.11, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"clouds-2\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 1078.38, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"clouds-1\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(2074, 750.47, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"ground\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 547.64, 0),\n\t\t\t\t\t\t\tduration: 2.0\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\ttime : 2.4,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"railings\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 212.97, 0),\n\t\t\t\t\t\t\tduration: 1.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"lea\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(3216, 828.22, 0),\n\t\t\t\t\t\t\tduration: 1.0\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\ttime : 3.4,\n\t\t\t\t\texecute() {\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"railings\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(1920, 212.97, 0),\n\t\t\t\t\t\t\tduration: 1.0\n\t\t\t\t\t\t});\n\t\t\t\t\t\tnew EaseOutStrongInterp({\n\t\t\t\t\t\t\ttargetObject: thisScene.getLayer(\"lea\"),\n\t\t\t\t\t\t\tpropertyName: \"origin\",\n\t\t\t\t\t\t\tendValue: new Vec3(3216, 828.22, 0),\n\t\t\t\t\t\t\tduration: 1.0\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t],\n\t\t\tupdate : function() {\n\t\t\t\tlet thisPhase = ScenePhase.MAIN.INTRO;\n\t\t\t\twhile (thisPhase.nextEvent < thisPhase.timeLine.length && phaseTime > thisPhase.timeLine[thisPhase.nextEvent].time) {\n\t\t\t\t\tthisPhase.timeLine[thisPhase.nextEvent].execute();\n\t\t\t\t\t++thisPhase.nextEvent;\n\t\t\t\t}\n\t\t\t},\n\t\t\tinit : function() {\n\t\t\t\tif (!AudioManager.isMusicPlaying())\n\t\t\t\t\tAudioManager.startMusic();\n\t\t\t\tScenePhase.MAIN.INTRO.nextEvent = 0;\n\t\t\t\tthisScene.getLayer(\"sky\").origin = new Vec3(1920, 824.70, 0);\n\t\t\t\tthisScene.getLayer(\"planet\").origin = new Vec3(608.49, 1095.14, 0);\n\t\t\t\tthisScene.getLayer(\"clouds-2\").origin = new Vec3(1920, 496.93, 0);\n\t\t\t\tthisScene.getLayer(\"clouds-1\").origin = new Vec3(2074, 0, 0);\n\t\t\t\tthisScene.getLayer(\"ground\").origin = new Vec3(1920, -20, 0);\n\t\t\t\tthisScene.getLayer(\"railings\").origin = new Vec3(1920, -1558.41, 0);\n\t\t\t\tthisScene.getLayer(\"lea\").origin = new Vec3(3216, -943.16, 0);\n\t\t\t\tthisScene.getLayer(\"lineGlow\").scale = new Vec3(6.761, 0, 0);\n\t\t\t\tthisScene.getLayer(\"Intro blackBG\").getEffect(0).getMaterial(0).multiply = 1;\n\t\t\t\tthisScene.getLayer(\"rhombusLeft\").origin = new Vec3(1596, 1080, 0);\n\t\t\t\tthisScene.getLayer(\"rhombusLeft\").scale = new Vec3(0, 0, 0);\n\t\t\t\tthisScene.getLayer(\"rhombusLeft\").getEffect(0).getMaterial(0).alpha = 1;\n\t\t\t\tthisScene.getLayer(\"rhombusRight\").origin = new Vec3(2244, 1080, 0);\n\t\t\t\tthisScene.getLayer(\"rhombusRight\").scale = new Vec3(0, 0, 0);\n\t\t\t\tthisScene.getLayer(\"rhombusRight\").getEffect(0).getMaterial(0).alpha = 1;\n\t\t\t\tthisScene.getLayer(\"logoBG\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\t\tthisScene.getLayer(\"logoBG\").scale = new Vec3(5.07, 0, 0);\n\t\t\t\tthisScene.getLayer(\"logoBG\").origin = new Vec3(1920, 1080, 0);\n\t\t\t\tthisScene.getLayer(\"logoFill\").origin = new Vec3(1920, 1080, 0);\n\t\t\t\tthisScene.getLayer(\"logoFill\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\t\tthisScene.getLayer(\"rhombusEmpty\").getEffect(0).getMaterial(0).alpha = 0;\n\t\t\t},\n\t\t\tend : function() {\n\n\t\t\t},\n\t\t\tget nextPhase() {return ScenePhase.MAIN}\n\t\t},\n\t\tname : \"main\",\n\t\tget nextPhase() {return null},\n\t\tlength : 0.0,\n\t\tupdate : function() {\n\n\t\t},\n\t\tinit : function() {\n\t\t\tif (!AudioManager.isMusicPlaying())\n\t\t\t\tAudioManager.startMusic();\n\t\t},\n\t\tend : function() {\n\n\t\t}\n\t}\n}\nshared.ScenePhase = ScenePhase;\n\n\nclass SceneManager {\n\tstatic update() {\n\t\t// \n\t\tshared.timeNudge = 0;\n\t\t\n\t\tif (activePhase) {\n\t\t\t// Advance phase\n\t\t\tphaseTime += engine.frametime;\n\t\t\tif (phaseTime > activePhase.length && activePhase.nextPhase) {\n\t\t\t\tSceneManager.advancePhase();\n\t\t\t}\n\t\t\tif (activePhase.length !== 0)\n\t\t\t\tshared.phaseProgress = phaseTime / activePhase.length;\n\t\t\telse \n\t\t\t\tshared.phaseProgress = 0.0;\n\n\t\t\t// Update active phase\n\t\t\tif (typeof(activePhase.update) === \"function\")\n\t\t\t\tactivePhase.update();\n\t\t}\n\t}\n\t\n\tstatic get phase() {return activePhase}\n\n\tstatic get phaseTime() {return phaseTime}\n\n\tstatic advancePhase() {\n\t\tif (typeof(activePhase.end) === \"function\")\n\t\t\tactivePhase.end();\n\t\tSceneManager.setPhase(activePhase.nextPhase);\n\t}\n\n/** Initialize the currently active phase */\n\tstatic setPhase(newPhase, bInit = true) {\n\t\tactivePhase = newPhase;\n\t\tphaseTime = 0;\n\t\tif (bInit && typeof(activePhase.init) === \"function\")\n\t\t\tactivePhase.init();\n\t}\n}\nshared.SceneManager = SceneManager;\n\n\n\n/** Initialize in update instead of init, since we want to load user settings before we initialize */\nlet bFirstUpdate = true;\n/**\n * @param {Boolean} value (for property 'visible')\n */\nexport function update(value) {\n\tif (bFirstUpdate) {\n\t\tbFirstUpdate = false;\n\n\t\t// Set the initial phase in update(), as init() runs before we get user properties\n\t\tif (show_developer_splash)\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\telse if (show_intro)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t\telse\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN);\n\t}\n\telse\n\t\tSceneManager.update();\n\treturn value;\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.show_intro !== undefined && userProperties.show_intro !== show_intro) {\n\t\tshow_intro = userProperties.show_intro;\n\t\t// Jump to intro when enabled\n\t\tif (show_intro && SceneManager.phase)\n\t\t\tSceneManager.setPhase(ScenePhase.MAIN.INTRO);\n\t}\n\tif (userProperties.show_developer_splash !== undefined && userProperties.show_developer_splash !== show_developer_splash) {\n\t\tshow_developer_splash = userProperties.show_developer_splash;\n\t\t// Jump to splash screen when enabled\n\t\tif (show_developer_splash && SceneManager.phase) {\n\t\t\tSceneManager.setPhase(ScenePhase.SPLASH);\n\t\t}\n\t}\n\tif (userProperties.boat_sway !== undefined && userProperties.boat_sway !== shared.boat_sway) {\n\t\tshared.boat_sway = userProperties.boat_sway;\n\t}\n}\n\n\n/**\n * @param {ICursorEvent} event\n */\nexport function cursorClick(event) {\n\tswitch (activePhase) {\n\tcase ScenePhase.SPLASH:\n\t\tif (phaseTime < 2) {\n\t\t\tshared.timeNudge = 2 - phaseTime;\n\t\t\tphaseTime = 2;\n\t\t}\n\t\telse if (phaseTime < 4.5) {\n\t\t\tshared.timeNudge = 4.5 - phaseTime;\n\t\t\tphaseTime = 4.5;\n\t\t}\n\t\tbreak;\n\tcase ScenePhase.MAIN.INTRO:\n\t\t// if (phaseTime < 0.6) {\n\t\t// \tAudioManager.playSound(\"logo-instant-bling-quick.ogg\")\n\t\t// \tshared.timeNudge = 0.6 - phaseTime;\n\t\t// \tphaseTime = 0.6;\n\t\t// }\n\t\tbreak;\n\t}\n}\n",
 				"value" : false
 			}
 		},
@@ -157,10 +157,10 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "sky",
-			"origin" : "1920.000 1344.000 0.000",
+			"origin" : "1917.912 1340.945 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.761 6.761 6.760",
+			"scale" : "6.761 6.750 1.000",
 			"size" : "568.000 395.000",
 			"solid" : true,
 			"visible" : true
@@ -177,7 +177,7 @@
 			"origin" : "611.000 1690.000 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.761 6.761 6.760",
+			"scale" : "6.761 6.761 1.000",
 			"size" : "180.000 315.000",
 			"solid" : true,
 			"visible" : true
@@ -434,6 +434,41 @@
 						}
 					],
 					"visible" : true
+				},
+				{
+					"file" : "effects/transform_pixelperfect/effect.json",
+					"id" : 507,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"CLAMP" : 0,
+								"MODE" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"angle" : 
+								{
+									"script" : "'use strict';\n\n/**\n * @param {Number} value (for property 'angle')\n */\nexport function update(value) {\n\treturn value;//shared.boat_sway * 0.05 * Math.sin(engine.runtime);\n}\n",
+									"value" : 0
+								},
+								"offset" : 
+								{
+									"script" : "'use strict';\n\n/**\n * @param {Vec2} value (for property 'offset')\n */\nexport function update(value) {\n\treturn new Vec2(0, 0.05 * Math.sin(engine.runtime * 0.761)).multiply(shared.boat_sway);\n}",
+									"value" : "0 0"
+								},
+								"scale" : 
+								{
+									"script" : "'use strict';\n\nlet OMGVector = shared.OMGVector;\n\nconst sway_begin = new Vec2(1, 1);\nconst sway_end = new Vec2(0.9, 0.9);\n\n/**\n * @param {Vec2} value (for property 'scale')\n */\nexport function update(value) {\n\treturn value;//OMGVector.lerp(sway_begin, sway_end, shared.boat_sway);\n}",
+									"value" : "1 1"
+								}
+							},
+							"id" : 50
+						}
+					],
+					"visible" : false
 				}
 			],
 			"id" : 316,
@@ -471,32 +506,15 @@
 			"angles" : "0.000 0.000 0.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
-			"id" : 26,
-			"image" : "models/lea.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "lea",
-			"origin" : "3216.000 824.000 0.000",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"scale" : "6.761 6.761 6.761",
-			"size" : "184.000 245.000",
-			"solid" : true,
-			"visible" : true
-		},
-		{
-			"angles" : "0.000 0.000 0.000",
-			"colorBlendMode" : 0,
-			"copybackground" : true,
 			"id" : 430,
 			"image" : "models/Press to start.json",
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "Press to start",
-			"origin" : "1920.000 1199.100 0.000",
+			"origin" : "1924.811 1199.100 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
+			"scale" : "6.761 6.750 1.000",
 			"size" : "98.000 14.000",
 			"solid" : true,
 			"visible" : 
@@ -535,10 +553,10 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "buttons_gamepad",
-			"origin" : "1684.510 1058.000 0.000",
+			"origin" : "1694.131 1055.595 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
+			"scale" : "6.761 6.750 1.000",
 			"size" : "40.000 24.000",
 			"solid" : true,
 			"visible" : 
@@ -556,10 +574,10 @@
 			"ledsource" : false,
 			"locktransforms" : false,
 			"name" : "buttons_kbm",
-			"origin" : "2149.665 1058.000 0.000",
+			"origin" : "2140.043 1055.595 0.000",
 			"parallaxDepth" : "1.000 1.000",
 			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
+			"scale" : "6.761 6.750 1.000",
 			"size" : "64.000 24.000",
 			"solid" : true,
 			"visible" : 
@@ -575,8 +593,268 @@
 			[
 				{
 					"file" : "effects/blend/effect.json",
+					"id" : 352,
+					"name" : "Blend",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"BLENDMODE" : 0,
+								"WRITEALPHA" : 0
+							},
+							"constantshadervalues" : 
+							{
+								"multiply" : 
+								{
+									"value" : 0
+								}
+							},
+							"id" : 353,
+							"textures" : [ null, "util/black" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 349,
+			"image" : "models/util/fullscreenlayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Intro blackBG",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"id" : 272,
+			"image" : "models/lineGlow.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "lineGlow",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 0.000 1.000",
+			"size" : "568.000 32.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 395,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 398,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 291,
+			"image" : "models/rhombus.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "rhombusLeft",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "0.000 0.000 1.000",
+			"size" : "128.000 128.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 403,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 404,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 777,
+			"image" : "models/rhombus.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "rhombusRight",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "0.000 0.000 1.000",
+			"size" : "128.000 128.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 424,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 425,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 295,
+			"image" : "models/rhombusEmpty.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "rhombusEmpty",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 1.000",
+			"size" : "128.000 128.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 369,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 372,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 299,
+			"image" : "models/logoBG.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "logoBG",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 1.000",
+			"size" : "350.000 112.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 9,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/opacity/effect.json",
+					"id" : 377,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"alpha" : 0
+							},
+							"id" : 378,
+							"textures" : [ null, "util/white" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 307,
+			"image" : "models/logoFill.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "logoFill",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 1.000",
+			"size" : "288.000 112.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"id" : 26,
+			"image" : "models/lea.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "lea",
+			"origin" : "3216.000 824.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.761 6.761",
+			"size" : "184.000 245.000",
+			"solid" : true,
+			"visible" : true
+		},
+		{
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/blend/effect.json",
 					"id" : 287,
-					"name" : "Fade out",
+					"name" : "Blend",
 					"passes" : 
 					[
 						{
@@ -841,7 +1119,7 @@
 				{
 					"file" : "effects/blend/effect.json",
 					"id" : 107,
-					"name" : "Opacity",
+					"name" : "Blend",
 					"passes" : 
 					[
 						{
@@ -873,132 +1151,6 @@
 			"perspective" : false,
 			"solid" : true,
 			"visible" : true
-		},
-		{
-			"colorBlendMode" : 0,
-			"copybackground" : true,
-			"effects" : 
-			[
-				{
-					"file" : "effects/blend/effect.json",
-					"id" : 352,
-					"name" : "Opacity",
-					"passes" : 
-					[
-						{
-							"combos" : 
-							{
-								"BLENDMODE" : 0,
-								"WRITEALPHA" : 0
-							},
-							"constantshadervalues" : 
-							{
-								"multiply" : 
-								{
-									"value" : 0
-								}
-							},
-							"id" : 353,
-							"textures" : [ null, "util/black" ]
-						}
-					],
-					"visible" : true
-				}
-			],
-			"id" : 349,
-			"image" : "models/util/fullscreenlayer.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "Intro blackBG",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"solid" : true,
-			"visible" : true
-		},
-		{
-			"angles" : "0.000 0.000 0.000",
-			"colorBlendMode" : 9,
-			"copybackground" : true,
-			"id" : 272,
-			"image" : "models/lineGlow.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "lineGlow",
-			"origin" : "1920.000 1080.000 0.000",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
-			"size" : "568.000 32.000",
-			"solid" : true,
-			"visible" : false
-		},
-		{
-			"angles" : "0.000 0.000 0.000",
-			"colorBlendMode" : 9,
-			"copybackground" : true,
-			"id" : 291,
-			"image" : "models/rhombus.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "rhombus",
-			"origin" : "1920.000 1080.000 0.000",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
-			"size" : "128.000 128.000",
-			"solid" : true,
-			"visible" : false
-		},
-		{
-			"angles" : "0.000 0.000 0.000",
-			"colorBlendMode" : 9,
-			"copybackground" : true,
-			"id" : 295,
-			"image" : "models/rhombusEmpty.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "rhombusEmpty",
-			"origin" : "1920.000 1080.000 0.000",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
-			"size" : "128.000 128.000",
-			"solid" : true,
-			"visible" : false
-		},
-		{
-			"angles" : "0.000 0.000 0.000",
-			"colorBlendMode" : 9,
-			"copybackground" : true,
-			"id" : 299,
-			"image" : "models/logoBG.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "logoBG",
-			"origin" : "1920.000 1080.000 0.000",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
-			"size" : "350.000 112.000",
-			"solid" : true,
-			"visible" : false
-		},
-		{
-			"angles" : "0.000 0.000 0.000",
-			"colorBlendMode" : 9,
-			"copybackground" : true,
-			"id" : 307,
-			"image" : "models/logoFill.json",
-			"ledsource" : false,
-			"locktransforms" : false,
-			"name" : "logoFill",
-			"origin" : "1920.000 1080.000 0.000",
-			"parallaxDepth" : "1.000 1.000",
-			"perspective" : false,
-			"scale" : "6.761 6.761 1.000",
-			"size" : "288.000 112.000",
-			"solid" : true,
-			"visible" : false
 		},
 		{
 			"alpha" : 1.0,
@@ -1046,6 +1198,90 @@
 			"sound" : [ "sounds/silence.ogg" ],
 			"startsilent" : true,
 			"volume" : 0.5
+		},
+		{
+			"angles" : "0.000 0.000 0.000",
+			"colorBlendMode" : 0,
+			"config" : 
+			{
+				"passthrough" : true
+			},
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/pixelate/effect.json",
+					"id" : 364,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"MULTIPLY" : 1,
+								"POINTFILTER" : 1
+							},
+							"constantshadervalues" : 
+							{
+								"new_resolution" : "568 320",
+								"resolution_scale" : 1
+							},
+							"id" : 365
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 440,
+			"image" : "models/util/composelayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Compose",
+			"origin" : "1920.000 1080.000 0.000",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"scale" : "6.761 6.750 1.000",
+			"size" : "568.000 320.000",
+			"solid" : true,
+			"visible" : false
+		},
+		{
+			"colorBlendMode" : 0,
+			"copybackground" : true,
+			"effects" : 
+			[
+				{
+					"file" : "effects/pixelate/effect.json",
+					"id" : 457,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"MULTIPLY" : 0,
+								"POINTFILTER" : 1
+							},
+							"constantshadervalues" : 
+							{
+								"new_resolution" : "568 320",
+								"resolution_scale" : 0.5
+							},
+							"id" : 458
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 455,
+			"image" : "models/util/fullscreenlayer.json",
+			"ledsource" : false,
+			"locktransforms" : false,
+			"name" : "Force original resolution",
+			"parallaxDepth" : "1.000 1.000",
+			"perspective" : false,
+			"solid" : true,
+			"visible" : false
 		}
 	]
 }
