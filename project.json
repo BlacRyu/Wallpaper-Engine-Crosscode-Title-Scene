@@ -5,13 +5,23 @@
 	{
 		"properties" : 
 		{
+			"ambient_volume" : 
+			{
+				"fraction" : false,
+				"max" : 100,
+				"min" : 0,
+				"order" : 101,
+				"text" : "Ocean Volume",
+				"type" : "slider",
+				"value" : 60
+			},
 			"bloom" : 
 			{
 				"condition" : "extra_effects.value == true",
 				"fraction" : true,
 				"max" : 3,
 				"min" : 0,
-				"order" : 105,
+				"order" : 106,
 				"precision" : 2,
 				"step" : 0.050000000000000003,
 				"text" : "Bloom",
@@ -24,7 +34,7 @@
 				"fraction" : true,
 				"max" : 1,
 				"min" : 0,
-				"order" : 106,
+				"order" : 107,
 				"precision" : 2,
 				"step" : 0.01,
 				"text" : "Boat Sway",
@@ -33,7 +43,7 @@
 			},
 			"extra_effects" : 
 			{
-				"order" : 104,
+				"order" : 105,
 				"text" : "Enable Extra Effects",
 				"type" : "bool",
 				"value" : true
@@ -43,16 +53,12 @@
 				"options" : 
 				[
 					{
-						"label" : "New Music",
+						"label" : "Default",
 						"value" : "New"
 					},
 					{
-						"label" : "Old Music",
+						"label" : "Soothing",
 						"value" : "Old"
-					},
-					{
-						"label" : "Ambient only",
-						"value" : "Ambient"
 					},
 					{
 						"label" : "None",
@@ -73,21 +79,21 @@
 			},
 			"show_developer_splash" : 
 			{
-				"order" : 102,
-				"text" : "Show Developer Splash Screen",
+				"order" : 103,
+				"text" : "Show Splash Screens",
 				"type" : "bool",
 				"value" : true
 			},
 			"show_intro" : 
 			{
-				"order" : 101,
-				"text" : "Show Intro",
+				"order" : 102,
+				"text" : "Show Title Screen Intro",
 				"type" : "bool",
 				"value" : true
 			},
 			"show_press_to_start" : 
 			{
-				"order" : 103,
+				"order" : 104,
 				"text" : "Show \"Press to start\"",
 				"type" : "bool",
 				"value" : true
@@ -98,7 +104,7 @@
 				"fraction" : true,
 				"max" : 1,
 				"min" : 0,
-				"order" : 108,
+				"order" : 109,
 				"precision" : 2,
 				"step" : 0.01,
 				"text" : "Water Reflection",
@@ -108,7 +114,7 @@
 			"water_ripples" : 
 			{
 				"condition" : "extra_effects.value == true",
-				"order" : 107,
+				"order" : 108,
 				"text" : "Water Ripples",
 				"type" : "bool",
 				"value" : true
