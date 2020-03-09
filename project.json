@@ -1,5 +1,6 @@
 {
 	"contentrating" : "Everyone",
+	"description" : "An accurate and customizable recreation of the title screen from the game CrossCode. I tried to allow it to remain as authentic to the original as possible while also providing some optional enhancements. Enjoy.\n\n\n\ntags: cross code game ocean boat ship virtual reality vr augmented reality ar planet clouds wind pixel art lea breeze hi city music soothing soft calm retro",
 	"file" : "scene.json",
 	"general" : 
 	{
@@ -128,6 +129,7 @@
 			}
 		}
 	},
+	"preview" : "preview.gif",
 	"tags" : [ "Game" ],
 	"title" : "Crosscode Title Screen",
 	"type" : "scene",

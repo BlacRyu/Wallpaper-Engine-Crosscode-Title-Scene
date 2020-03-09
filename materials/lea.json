@@ -7,6 +7,10 @@
 			{
 				"spritesheet" : 1
 			},
+			"constantshadervalues" : 
+			{
+				"Brightness" : 1
+			},
 			"cullmode" : "nocull",
 			"depthtest" : "disabled",
 			"depthwrite" : "disabled",
