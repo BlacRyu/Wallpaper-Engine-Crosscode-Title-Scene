@@ -1,7 +1,4 @@
 Tasks:
-
-	- Delay showing 'press to start' until intro is completed.
-		- Add a transform parenting system using matrix functions.
 	- Make the pixelate effect optionally retain the original aspect ratio (black bars outside).
 
 
@@ -19,3 +16,6 @@ Done
 ===============================================================================
 
 
+
+	- Delay showing 'press to start' until intro is completed.
+		- Add a transform parenting system using matrix functions.
