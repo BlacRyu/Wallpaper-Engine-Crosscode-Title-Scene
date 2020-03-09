@@ -1,8 +1,8 @@
 {
 	"camera" : 
 	{
-		"center" : "0.000 0.000 -1.000",
-		"eye" : "0.000 0.000 0.000",
+		"center" : "0.000 0.000 0.000",
+		"eye" : "0.000 0.000 1.000",
 		"up" : "0.000 1.000 0.000"
 	},
 	"general" : 
@@ -16,7 +16,7 @@
 		"bloomstrength" : 
 		{
 			"user" : "bloom",
-			"value" : 0.60000002384185791
+			"value" : 0.34999999403953552
 		},
 		"bloomthreshold" : 0.69999998807907104,
 		"camerafade" : false,
@@ -144,7 +144,7 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst Helpers = shared.OMGHelpers;\n\n/** @type {Interpolator[]} */\nlet activeInterps = [];\n\n\nexport function update() {\n\tactiveInterps.forEach((interp, index, array) => {\n\t\tinterp.update(engine.frametime + (shared.timeNudge || 0));\n\t});\n\tshared.timeNudge = 0;\n}\n\n\n\n\n/** Modifies an object property over a period of time */\nclass Interpolator {\n/** \n * @typedef {Object} InterpolatorParams\n * @property targetObject {object} - The object whose property value will be modified\n * @property propertyName {String} - The name of the property key to be modified\n * @property duration {Number} - How long it will take to reach the final value.\n * @property startValue {object} - An optional starting value. If not set, will use the properties existing value.\n * @property startOffset {object} - An optional offset to the starting value.\n * @property endValue {object} - The value the target variable will reach at the end of the duration. If not set, will use the properties existing value.\n * @property endOffset {object} - An optional offset to the end value.\n */\n\t/** \n\t * @param {InterpolatorParams} params - Object which allows parameters to be set by name. \n\t */\n\tconstructor(params) {\n\t\tthis.targetObject = params.targetObject;\n\t\tthis.propertyName = params.propertyName || \"origin\";\n\t\tthis.duration = params.duration || 1.0;\n\t\tthis.elapsedTime = 0;\n\t\tactiveInterps.push(this);\n\t\t\n\t\tif (params.startValue !== undefined)\n\t\t\tthis.startValue = Helpers.add(params.startValue, params.startOffset);\n\t\telse\n\t\t\tthis.startValue = Helpers.add(this.targetValue, params.startOffset);\n\t\t\n\t\tif (params.endValue !== undefined)\n\t\t\tthis.endValue = Helpers.add(params.endValue, params.endOffset);\n\t\telse\n\t\t\tthis.endValue = Helpers.add(this.targetValue, params.endOffset);\n\t}\n\n\tget targetValue() {return this.targetObject[this.propertyName]}\n\tset targetValue(newValue) {return this.targetObject[this.propertyName] = newValue}\n\n\tupdate(dt) {\n\t\tthis.elapsedTime += dt;\n\t\tif (this.elapsedTime > this.duration) {\n\t\t\tthis.finish();\n\t\t\tthis.destroy();\n\t\t}\n\t\telse\n\t\t\tthis.interpolate();\n\t}\n\n\tinterpolate() {\n\t\t// Perform interpolation here\n\t}\n\n\tfinish() {\n\t\tthis.targetValue = this.endValue;\n\t}\n\n\tdestroy() {\n\t\tactiveInterps.splice(activeInterps.indexOf(this), 1);\n\t}\n}\n\n\n/** Transitions from the start to end value at a constant rate. */\nclass LinearInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, percentage);\n\t}\n}\nshared.LinearInterp = LinearInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, percentage * (2 - percentage));\n\t}\n}\nshared.EaseOutInterp = EaseOutInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutStrongInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, Math.pow(percentage-1, 3) + 1);\n\t}\n}\nshared.EaseOutStrongInterp = EaseOutStrongInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseInInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, Math.pow(percentage, 2));\n\t}\n}\nshared.EaseInInterp = EaseInInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first, quickly in the middle, then slow again at the end. */\nclass EaseInOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet x = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, x * x * (3 - 2 * x));\n\t}\n}\nshared.EaseInOutInterp = EaseInOutInterp;",
+				"script" : "'use strict';\nconst Helpers = shared.OMGHelpers;\n\n/** @type {Interpolator[]} */\nlet activeInterps = [];\n\n\nexport function update() {\n\tactiveInterps.forEach((interp, index, array) => {\n\t\tinterp.update(engine.frametime + (shared.timeNudge || 0));\n\t});\n\tshared.timeNudge = 0;\n}\n\n\n\n\n/** Modifies an object property over a period of time */\nclass Interpolator {\n/** \n * @typedef {Object} InterpolatorParams\n * @property targetObject {object} - The object whose property value will be modified\n * @property propertyName {String} - The name of the property key to be modified\n * @property duration {Number} - How long it will take to reach the final value.\n * @property startValue {object} - An optional starting value. If not set, will use the properties existing value.\n * @property startOffset {object} - An optional offset to the starting value.\n * @property endValue {object} - The value the target variable will reach at the end of the duration. If not set, will use the properties existing value.\n * @property endOffset {object} - An optional offset to the end value.\n */\n\t/** \n\t * @param {InterpolatorParams} params - Object which allows parameters to be set by name. \n\t */\n\tconstructor(params) {\n\t\tthis.targetObject = params.targetObject;\n\t\tthis.propertyName = params.propertyName || \"origin\";\n\t\tthis.duration = params.duration || 1.0;\n\t\tthis.elapsedTime = 0;\n\t\tactiveInterps.push(this);\n\t\t\n\t\tif (params.startValue !== undefined)\n\t\t\tthis.startValue = Helpers.add(params.startValue, params.startOffset);\n\t\telse\n\t\t\tthis.startValue = Helpers.add(this.targetValue, params.startOffset);\n\t\tthis.targetValue = this.startValue;\n\t\t\n\t\tif (params.endValue !== undefined)\n\t\t\tthis.endValue = Helpers.add(params.endValue, params.endOffset);\n\t\telse\n\t\t\tthis.endValue = Helpers.add(this.targetValue, params.endOffset);\n\t}\n\n\tget targetValue() {return this.targetObject[this.propertyName]}\n\tset targetValue(newValue) {return this.targetObject[this.propertyName] = newValue}\n\n\tupdate(dt) {\n\t\tthis.elapsedTime += dt;\n\t\tif (this.elapsedTime > this.duration) {\n\t\t\tthis.finish();\n\t\t\tthis.destroy();\n\t\t}\n\t\telse\n\t\t\tthis.interpolate();\n\t}\n\n\tinterpolate() {\n\t\t// Perform interpolation here\n\t}\n\n\tfinish() {\n\t\tthis.targetValue = this.endValue;\n\t}\n\n\tdestroy() {\n\t\tactiveInterps.splice(activeInterps.indexOf(this), 1);\n\t}\n}\n\n\n/** Transitions from the start to end value at a constant rate. */\nclass LinearInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, percentage);\n\t}\n}\nshared.LinearInterp = LinearInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, percentage * (2 - percentage));\n\t}\n}\nshared.EaseOutInterp = EaseOutInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseOutStrongInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, Math.pow(percentage-1, 3) + 1);\n\t}\n}\nshared.EaseOutStrongInterp = EaseOutStrongInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first then speeding up. */\nclass EaseInInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet percentage = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, Math.pow(percentage, 2));\n\t}\n}\nshared.EaseInInterp = EaseInInterp;\n\n\n\n/** Transitions from the start to end value, moving slowly at first, quickly in the middle, then slow again at the end. */\nclass EaseInOutInterp extends Interpolator {\n\tinterpolate() {\n\t\tlet x = this.elapsedTime / this.duration;\n\t\tthis.targetValue = Helpers.lerp(this.startValue, this.endValue, x * x * (3 - 2 * x));\n\t}\n}\nshared.EaseInOutInterp = EaseInOutInterp;",
 				"value" : false
 			}
 		},
@@ -419,6 +419,11 @@
 							{
 								"CLAMP" : 0
 							},
+							"constantshadervalues" : 
+							{
+								"offset" : "0 0",
+								"scale" : "1 1"
+							},
 							"id" : 280
 						}
 					],
@@ -459,17 +464,19 @@
 							{
 								"angle" : 
 								{
-									"script" : "'use strict';\n\n/**\n * @param {Number} value (for property 'angle')\n */\nexport function update(value) {\n\treturn shared.boat_sway * 0.05 * Math.sin(engine.runtime);\n}\n",
+									"script" : "'use strict';\n\n/**\n * @param {Number} value (for property 'angle')\n */\nexport function update(value) {\n\treturn shared.boat_sway * 0.02 * Math.sin(engine.runtime);\n}\n",
 									"value" : 0
 								},
 								"offset" : 
 								{
-									"script" : "'use strict';\n\n/**\n * @param {Vec2} value (for property 'offset')\n */\nexport function update(value) {\n\treturn new Vec2(0, 0.05 * Math.sin(engine.runtime * 0.761)).multiply(shared.boat_sway);\n}",
+									"script" : "'use strict';\n\n/**\n * @param {Vec2} value (for property 'offset')\n */\nexport function update(value) {\n\treturn new Vec2(0, shared.boat_sway * 0.02 * Math.sin(engine.runtime * 0.761));\n}",
+									"user" : null,
 									"value" : "0 0"
 								},
 								"scale" : 
 								{
-									"script" : "'use strict';\n\nlet OMGVector = shared.OMGVector;\n\nconst sway_begin = new Vec2(1, 1);\nconst sway_end = new Vec2(0.9, 0.9);\n\n/**\n * @param {Vec2} value (for property 'scale')\n */\nexport function update(value) {\n\treturn OMGVector.lerp(sway_begin, sway_end, shared.boat_sway);\n}",
+									"script" : "'use strict';\n\nlet OMGVector = shared.OMGVector;\n\nconst sway_begin = new Vec2(1, 1);\nconst sway_end = new Vec2(0.96, 0.96);\n\n/**\n * @param {Vec2} value (for property 'scale')\n */\nexport function update(value) {\n\treturn OMGVector.lerp(sway_begin, sway_end, shared.boat_sway);\n}",
+									"user" : null,
 									"value" : "1 1"
 								}
 							},
@@ -583,6 +590,7 @@
 			"solid" : true,
 			"visible" : 
 			{
+				"script" : "'use strict';\nconst LinearInterp = shared.LinearInterp;\nconst SceneManager = shared.SceneManager;\nconst ScenePhase = shared.ScenePhase;\n\nlet show_press_to_start = undefined;\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.show_press_to_start !== undefined && userProperties.show_press_to_start !== show_press_to_start) {\n\t\tshow_press_to_start = userProperties.show_press_to_start;\n\t\tif (show_press_to_start) {\n\t\t\tthisLayer.visible = true;\n\t\t\tif (SceneManager.phase === ScenePhase.MAIN) {\n\t\t\t\tnew LinearInterp({\n\t\t\t\t\ttargetObject: thisScene.getLayer(\"line\"),\n\t\t\t\t\tpropertyName: \"scale\",\n\t\t\t\t\tstartValue: new Vec3(1189.936, 3.381, 1),\n\t\t\t\t\tendValue: new Vec3(1189.936, 6.761, 1),\n\t\t\t\t\tduration: .2\n\t\t\t\t});\n\t\t\t}\n\t\t}\n\t\telse\n\t\t\tthisLayer.visible = false;\n\t}\n}\n",
 				"user" : "show_press_to_start",
 				"value" : false
 			}

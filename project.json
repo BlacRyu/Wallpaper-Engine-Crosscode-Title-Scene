@@ -27,7 +27,7 @@
 				"step" : 0.050000000000000003,
 				"text" : "Bloom",
 				"type" : "slider",
-				"value" : 0.59999999999999998
+				"value" : 0.34999999999999998
 			},
 			"boat_sway" : 
 			{
@@ -40,7 +40,7 @@
 				"step" : 0.01,
 				"text" : "Boat Sway",
 				"type" : "slider",
-				"value" : 0.080000000000000002
+				"value" : 0.20000000000000001
 			},
 			"extra_effects" : 
 			{
@@ -54,11 +54,11 @@
 				"options" : 
 				[
 					{
-						"label" : "Default",
+						"label" : "Original",
 						"value" : "New"
 					},
 					{
-						"label" : "Soft",
+						"label" : "Calm",
 						"value" : "Old"
 					},
 					{
@@ -90,7 +90,7 @@
 				"order" : 102,
 				"text" : "Show Title Screen Intro",
 				"type" : "bool",
-				"value" : false
+				"value" : true
 			},
 			"show_logo" : 
 			{
