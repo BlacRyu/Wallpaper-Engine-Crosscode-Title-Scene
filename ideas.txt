@@ -1,13 +1,17 @@
 Tasks:
+	- Check wallpaper on main branch before publishing.
 	- Make the pixelate effect optionally retain the original aspect ratio (black bars outside).
 
 
 
 
+instanceoverride
 
 
 
-
+Bugs:
+	- Scripts won't move lights outside of the editor.
+	- Image layer scale is rounded to the nearest 0.001 when the scene is saved. Need more precision in 3D scenes where everything is 1/100 scale by default. Manually editing values to be lower works, but they get rounded after save/load.
 
 
 
@@ -15,6 +19,12 @@ Tasks:
 Done
 ===============================================================================
 
+
+
+
+Bugs:
+	- Click boxes for text layers are shifted to the left on the desktop if the canvas aspect ratio is higher than the screen aspect ratio.
+	X (Not reliably reproducible) cursorMove gets called every frame outside of the editor, but only when the cursor moves inside the editor.
 
 
 	- Delay showing 'press to start' until intro is completed.
