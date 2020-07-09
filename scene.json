@@ -11,7 +11,7 @@
 		"bloom" : 
 		{
 			"user" : "extra_effects",
-			"value" : false
+			"value" : true
 		},
 		"bloomstrength" : 
 		{
@@ -44,7 +44,10 @@
 	"objects" : 
 	[
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 134,
@@ -65,7 +68,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 117,
@@ -86,7 +92,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 468,
@@ -107,7 +116,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 394,
@@ -128,7 +140,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 284,
@@ -149,7 +164,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 13,
@@ -165,12 +183,15 @@
 			"solid" : true,
 			"visible" : 
 			{
-				"script" : "'use strict';\nconst Helpers = shared.OMGHelpers;\n// const ScenePhase = shared.ScenePhase || function() {return shared.ScenePhase};\n// const SceneManager = shared.SceneManager || function() {return shared.SceneManager};\n\n// These values aren't defined yet, but assigning them here gives us intellisense.\n// We assign the actual class pointers in init().\nlet ScenePhase = shared.ScenePhase; \nlet SceneManager = shared.SceneManager;\n\nlet _a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet _a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet _a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet _music = undefined;\nlet _ambient_volume = undefined;\n\nconst _musicRepeatDelayOld = 37.0;\nconst _musicRepeatDelay = 36.25;\nconst _fadeDuration = 1.0;\nlet _currentTime = new Date().getTime();\n\n/** @type MusicLayer[] */\nlet _activeMusic = [];\n/** @type AmbienceLayer[] */\nlet _activeAmbience = [];\n/** @type SoundLayer[] */\nlet _activeSounds = [];\n\n\n\nexport function init(value) {\n\tScenePhase = shared.ScenePhase;\n\tSceneManager = shared.SceneManager;\n}\n\n\nexport function update(value) {\n\tAudioManager.update();\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != _music) {\n\t\t_music = userProperties.music;\n\t\tif (SceneManager.phase === ScenePhase.MAIN || SceneManager.phase === ScenePhase.MAIN.INTRO) {\n\t\t\tAudioManager.stopMusic();\n\t\t\tAudioManager.startMusic(_music);\n\t\t}\n\t}\n\tif (userProperties.ambient_volume != undefined && userProperties.ambient_volume != _ambient_volume) {\n\t\t_ambient_volume = userProperties.ambient_volume;\n\t}\n}\n\n\n/** Can start and stop sounds and looping music dynamically. */\nclass AudioManager {\n\tstatic update() {\n\t\t_currentTime = new Date().getTime();\n\n\t\t// Helpers.debugText(\"Sounds\", `Active Sounds? ${AudioManager.isSoundPlaying()}`);\n\t\t// Helpers.debugText(\"Music\", `Active Music? ${AudioManager.isMusicPlaying()}`);\n\t\t// Helpers.debugText(\"Ambience\", `Active Ambience? ${AudioManager.isAmbiencePlaying()}`);\n\n\t\t// Update active sounds\n\t\t_activeSounds.forEach(\n\t\t\tfunction(soundLayer, index, array) {\n\t\t\t\tsoundLayer.update();\n\t\t\t\tif (soundLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\n\t\t// Update active music\n\t\t_activeMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.update();\n\t\t\t\tif (musicLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\t\t// Update active music\n\t\t_activeAmbience.forEach(\n\t\t\tfunction(ambientLayer, index, array) {\n\t\t\t\tambientLayer.update();\n\t\t\t\tif (ambientLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\t}\n\n\tstatic isSoundPlaying() {\n\t\treturn _activeSounds.some(soundLayer => soundLayer.isPlaying);\n\t}\n\n\tstatic isMusicPlaying() {\n\t\treturn _activeMusic.some(musicLayer => musicLayer.isPlaying);\n\t}\n\n\tstatic isAmbiencePlaying() {\n\t\treturn _activeAmbience.some(ambientLayer => ambientLayer.isPlaying);\n\t}\n\n\n\t/** Starts fading out all active music */\n\tstatic stopMusic() {\n\t\tfor (const musicLayer of _activeMusic)\n\t\t\tmusicLayer.startFade();\n\t}\n\n\tstatic stopAmbience() {\n\t\tfor (const ambienceLayer of _activeAmbience)\n\t\t\tambienceLayer.startFade();\n\t}\n\n\t/** Begins looping the given music track. */\n\tstatic startMusic(music = _music) {\n\t\tlet newMusic = undefined;\n\n\t\tswitch (music) {\n\t\tcase \"Old\":\n\t\t\tnewMusic = new MusicLayer(_a_TitleMusicOld, 0.5, _musicRepeatDelayOld);\n\t\t\tbreak;\n\t\tcase \"New\":\n\t\tdefault:\n\t\t\tnewMusic = new MusicLayer(_a_TitleMusic, 0.5, _musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"None\":\n\t\t\tbreak;\n\t\t}\n\n\t\treturn newMusic;\n\t}\n\n\t/** Begins looping the ambience track. */\n\tstatic startAmbience() {\n\t\treturn new AmbientLayer(_a_TitleAmbient, _ambient_volume * 0.01, _musicRepeatDelay);\n\t}\n\n\t/** Plays a single sound\n\t * @returns {SoundLayer} The created sound layer\n\t */\n\tstatic playSound(asset, volume = 0.5) {\n\t\treturn new SoundLayer(asset, volume);\n\t}\n}\nshared.AudioManager = AudioManager;\n\n\n\nclass AudioLayer {\n\tconstructor(asset, volume = 0.5) {\n\t\tthis.asset = asset;\n\t\tlet layerSettings = new Object();\n\t\tlayerSettings.name = asset;\n\t\tlayerSettings.sound = asset;\n\t\tlayerSettings.volume = Math.max(volume, 0.001); // Give it some volume or the layer might not be created\n\t\tlayerSettings.startsilent = true;\n\t\tthis._layer = thisScene.createLayer(layerSettings);\n\t\tthis.register();\n\t}\n\n\tget volume() {return this._layer.volume}\n\tset volume(val) {return this._layer.volume = val}\n\tpause() {this._layer.pause()}\n\tstop() {this._layer.stop()}\n\tplay() {this._layer.play()}\n\tget isPlaying() {return this._layer.isPlaying()}\n\n\tregister() {_activeSounds.push(this);}\n\n\tupdate() {}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\n\n/** Plays the given sound asset once, then destroys itself. */\nclass SoundLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5) {\n\t\tsuper(asset, volume);\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis.hasPlayed = false;\n\t}\n\n\tupdate() {\n\t\t// Delayed start to prevent audio hiccups\n\t\tif (!this.isPlaying) {\n\t\t\tif (!this.hasPlayed) {\n\t\t\t\tthis._layer.play();\n\t\t\t\tthis.hasPlayed = true;\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t}\n\t}\n}\n\n\n\n/** Audio layer that crossfade loops itself after the specified repeat delay */\nclass MusicLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){\n\t\tsuper(asset, volume);\n\t\tthis.unfadedVolume = volume;\n\t\tthis._layer.playbackmode = \"single\";\n\t\t/** How many seconds to play before the track loops */\n\t\tthis.repeatDelay = repeatDelay;\n\t\t/** The track will fade out for this many seconds whenever it loops */\n\t\tthis.fadeDuration = _fadeDuration;\n\t}\n\t\n\tset volume(val) {this.unfadedVolume = val}\n\tget volume() {return this.unfadedVolume}\n\tget isPlaying() {return (this.startTime && !this.bFadingOut)}\n\n\tregister() { _activeMusic.push(this); }\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.bFadingOut) {\n\t\t\tif (_currentTime > this.fadeEndTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet fadeLerp = (_currentTime - this.fadeStartTime) / (this.fadeEndTime - this.fadeStartTime);\n\t\t\t\tthis._layer.volume = Helpers.lerp(this.unfadedVolume, 0, fadeLerp);\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying() && this.startTime === undefined) {\n\t\t\tthis._layer.play();\n\t\t\tthis.startTime = _currentTime;\n\t\t\tthis.endTime = this.startTime + this.repeatDelay * 1000;\n\t\t}\n\t\telse {\n\t\t\t// Update volume\n\t\t\tthis._layer.volume = this.unfadedVolume;\n\n\t\t\t// Start new audio\n\t\t\tif (_currentTime > this.endTime) {\n\t\t\t\tthis.loop();\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tif (!this.bFadingOut) {\n\t\t\tthis.bFadingOut = true;\n\t\t\tthis.fadeStartTime = _currentTime;\n\t\t\tthis.fadeEndTime = _currentTime + this.fadeDuration * 1000;\n\t\t}\n\t}\n\n\tloop() {\n\t\tthis.startFade();\n\t\tlet newLayer = new MusicLayer(this.asset);\n\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\tnewLayer.volume = this.unfadedVolume;\n\t}\n}\n\nclass AmbientLayer extends MusicLayer {\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){ super(asset, volume, repeatDelay); }\n\tregister() { _activeAmbience.push(this); }\n\n\tupdate() {\n\t\tsuper.update();\n\t\tthis.volume = Math.max(_ambient_volume * 0.01, 0.001);\n\t}\n\n\tloop() {\n\t\tthis.startFade();\n\t\tlet newLayer = new AmbientLayer(this.asset);\n\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\tnewLayer.volume = this.unfadedVolume;\n\t}\n}",
+				"script" : "'use strict';\nconst Helpers = shared.OMGHelpers;\n// const ScenePhase = shared.ScenePhase || function() {return shared.ScenePhase};\n// const SceneManager = shared.SceneManager || function() {return shared.SceneManager};\n\n// These values aren't defined yet, but assigning them here gives us intellisense.\n// We assign the actual class pointers in init().\nlet ScenePhase = shared.ScenePhase; \nlet SceneManager = shared.SceneManager;\n\nlet _a_TitleMusicOlder = engine.registerAsset(\"sounds/Deniz Akbulut - CrossCode Original Soundtrack EX - 11 Title (Techdemo++, 2013).mp3\")\nlet _a_TitleMusicOld = engine.registerAsset(\"sounds/menu.ogg\");\nlet _a_TitleMusic = engine.registerAsset(\"sounds/muTitle.ogg\");\nlet _a_TitleAmbient = engine.registerAsset(\"sounds/title-ambient.ogg\");\nlet _music = undefined;\nlet _ambient_volume = undefined;\n\nconst _musicRepeatDelayOlder = 64.0;\nconst _musicRepeatDelayOld = 37.0;\nconst _musicRepeatDelay = 36.25;\nconst _fadeDuration = 1.0;\nlet _currentTime = new Date().getTime();\n\n/** @type MusicLayer[] */\nlet _activeMusic = [];\n/** @type AmbienceLayer[] */\nlet _activeAmbience = [];\n/** @type SoundLayer[] */\nlet _activeSounds = [];\n\n\n\nexport function init(value) {\n\tScenePhase = shared.ScenePhase;\n\tSceneManager = shared.SceneManager;\n}\n\n\nexport function update(value) {\n\tAudioManager.update();\n}\n\n\n\n/**\n * @param {Object} userProperties\n */\nexport function applyUserProperties(userProperties) {\n\tif (userProperties.music != undefined && userProperties.music != _music) {\n\t\t_music = userProperties.music;\n\t\tif (SceneManager.phase === ScenePhase.MAIN || SceneManager.phase === ScenePhase.MAIN.INTRO) {\n\t\t\tAudioManager.stopMusic();\n\t\t\tAudioManager.startMusic(_music);\n\t\t}\n\t}\n\tif (userProperties.ambient_volume != undefined && userProperties.ambient_volume != _ambient_volume) {\n\t\t_ambient_volume = userProperties.ambient_volume;\n\t}\n}\n\n\n/** Can start and stop sounds and looping music dynamically. */\nclass AudioManager {\n\tstatic update() {\n\t\t_currentTime = new Date().getTime();\n\n\t\t// Helpers.debugText(\"Sounds\", `Active Sounds? ${AudioManager.isSoundPlaying()}`);\n\t\t// Helpers.debugText(\"Music\", `Active Music? ${AudioManager.isMusicPlaying()}`);\n\t\t// Helpers.debugText(\"Ambience\", `Active Ambience? ${AudioManager.isAmbiencePlaying()}`);\n\n\t\t// Update active sounds\n\t\t_activeSounds.forEach(\n\t\t\tfunction(soundLayer, index, array) {\n\t\t\t\tsoundLayer.update();\n\t\t\t\tif (soundLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\n\t\t// Update active music\n\t\t_activeMusic.forEach(\n\t\t\tfunction(musicLayer, index, array) {\n\t\t\t\tmusicLayer.update();\n\t\t\t\tif (musicLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\n\t\t// Update active music\n\t\t_activeAmbience.forEach(\n\t\t\tfunction(ambientLayer, index, array) {\n\t\t\t\tambientLayer.update();\n\t\t\t\tif (ambientLayer.isDone) {\n\t\t\t\t\tarray.splice(index, 1);\n\t\t\t\t}\n\t\t\t}\n\t\t);\n\t}\n\n\tstatic isSoundPlaying() {\n\t\treturn _activeSounds.some(soundLayer => soundLayer.isPlaying);\n\t}\n\n\tstatic isMusicPlaying() {\n\t\treturn _activeMusic.some(musicLayer => musicLayer.isPlaying);\n\t}\n\n\tstatic isAmbiencePlaying() {\n\t\treturn _activeAmbience.some(ambientLayer => ambientLayer.isPlaying);\n\t}\n\n\n\t/** Starts fading out all active music */\n\tstatic stopMusic() {\n\t\tfor (const musicLayer of _activeMusic)\n\t\t\tmusicLayer.startFade();\n\t}\n\n\tstatic stopAmbience() {\n\t\tfor (const ambienceLayer of _activeAmbience)\n\t\t\tambienceLayer.startFade();\n\t}\n\n\t/** Begins looping the given music track. */\n\tstatic startMusic(music = _music) {\n\t\tlet newMusic = undefined;\n\n\t\tswitch (music) {\n\t\tcase \"Old\":\n\t\t\tnewMusic = new MusicLayer(_a_TitleMusicOld, 0.5, _musicRepeatDelayOld);\n\t\t\tbreak;\n\t\tcase \"Older\":\n\t\t\tnewMusic = new MusicLayer(_a_TitleMusicOlder, 0.5, _musicRepeatDelayOlder);\n\t\t\tbreak;\n\t\tcase \"New\":\n\t\tdefault:\n\t\t\tnewMusic = new MusicLayer(_a_TitleMusic, 0.5, _musicRepeatDelay);\n\t\t\tbreak;\n\t\tcase \"None\":\n\t\t\tbreak;\n\t\t}\n\n\t\treturn newMusic;\n\t}\n\n\t/** Begins looping the ambience track. */\n\tstatic startAmbience() {\n\t\treturn new AmbientLayer(_a_TitleAmbient, _ambient_volume * 0.01, _musicRepeatDelay);\n\t}\n\n\t/** Plays a single sound\n\t * @returns {SoundLayer} The created sound layer\n\t */\n\tstatic playSound(asset, volume = 0.5) {\n\t\treturn new SoundLayer(asset, volume);\n\t}\n}\nshared.AudioManager = AudioManager;\n\n\n\nclass AudioLayer {\n\tconstructor(asset, volume = 0.5) {\n\t\tthis.asset = asset;\n\t\tlet layerSettings = new Object();\n\t\tlayerSettings.name = asset;\n\t\tlayerSettings.sound = asset;\n\t\tlayerSettings.volume = Math.max(volume, 0.001); // Give it some volume or the layer might not be created\n\t\tlayerSettings.startsilent = true;\n\t\tthis._layer = thisScene.createLayer(layerSettings);\n\t\tthis.register();\n\t}\n\n\tget volume() {return this._layer.volume}\n\tset volume(val) {return this._layer.volume = val}\n\tpause() {this._layer.pause()}\n\tstop() {this._layer.stop()}\n\tplay() {this._layer.play()}\n\tget isPlaying() {return this._layer.isPlaying()}\n\n\tregister() {_activeSounds.push(this);}\n\n\tupdate() {}\n\n\tdestroy() {\n\t\tthis.isDone = true;\n\t\tthis.stop();\n\t\tthisScene.destroyLayer(this._layer);\n\t}\n}\n\n\n/** Plays the given sound asset once, then destroys itself. */\nclass SoundLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5) {\n\t\tsuper(asset, volume);\n\t\tthis._layer.playbackmode = \"single\";\n\t\tthis.hasPlayed = false;\n\t}\n\n\tupdate() {\n\t\t// Delayed start to prevent audio hiccups\n\t\tif (!this.isPlaying) {\n\t\t\tif (!this.hasPlayed) {\n\t\t\t\tthis._layer.play();\n\t\t\t\tthis.hasPlayed = true;\n\t\t\t}\n\t\t\telse {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t}\n\t}\n}\n\n\n\n/** Audio layer that crossfade loops itself after the specified repeat delay */\nclass MusicLayer extends AudioLayer{\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){\n\t\tsuper(asset, volume);\n\t\tthis.unfadedVolume = volume;\n\t\tthis._layer.playbackmode = \"single\";\n\t\t/** How many seconds to play before the track loops */\n\t\tthis.repeatDelay = repeatDelay;\n\t\t/** The track will fade out for this many seconds whenever it loops */\n\t\tthis.fadeDuration = _fadeDuration;\n\t}\n\t\n\tset volume(val) {this.unfadedVolume = val}\n\tget volume() {return this.unfadedVolume}\n\tget isPlaying() {return (this.startTime && !this.bFadingOut)}\n\n\tregister() { _activeMusic.push(this); }\n\n\tupdate() {\n\t\t// Fade out then kill layer\n\t\tif (this.bFadingOut) {\n\t\t\tif (_currentTime > this.fadeEndTime) {\n\t\t\t\tthis.destroy();\n\t\t\t}\n\t\t\telse {\n\t\t\t\tlet fadeLerp = (_currentTime - this.fadeStartTime) / (this.fadeEndTime - this.fadeStartTime);\n\t\t\t\tthis._layer.volume = Helpers.lerp(this.unfadedVolume, 0, fadeLerp);\n\t\t\t}\n\t\t}\n\t\t// Delayed start to prevent audio hiccups\n\t\telse if (!this._layer.isPlaying() && this.startTime === undefined) {\n\t\t\tthis._layer.play();\n\t\t\tthis.startTime = _currentTime;\n\t\t\tthis.endTime = this.startTime + this.repeatDelay * 1000;\n\t\t}\n\t\telse {\n\t\t\t// Update volume\n\t\t\tthis._layer.volume = this.unfadedVolume;\n\n\t\t\t// Start new audio\n\t\t\tif (_currentTime > this.endTime) {\n\t\t\t\tthis.loop();\n\t\t\t}\n\t\t}\n\t}\n\n\tstartFade() {\n\t\tif (!this.bFadingOut) {\n\t\t\tthis.bFadingOut = true;\n\t\t\tthis.fadeStartTime = _currentTime;\n\t\t\tthis.fadeEndTime = _currentTime + this.fadeDuration * 1000;\n\t\t}\n\t}\n\n\tloop() {\n\t\tthis.startFade();\n\t\tlet newLayer = new MusicLayer(this.asset);\n\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\tnewLayer.volume = this.unfadedVolume;\n\t}\n}\n\nclass AmbientLayer extends MusicLayer {\n\tconstructor(asset, volume = 0.5, repeatDelay = 9999){ super(asset, volume, repeatDelay); }\n\tregister() { _activeAmbience.push(this); }\n\n\tupdate() {\n\t\tsuper.update();\n\t\tthis.volume = Math.max(_ambient_volume * 0.01, 0.001);\n\t}\n\n\tloop() {\n\t\tthis.startFade();\n\t\tlet newLayer = new AmbientLayer(this.asset);\n\t\tnewLayer.repeatDelay = this.repeatDelay;\n\t\tnewLayer.volume = this.unfadedVolume;\n\t}\n}",
 				"value" : false
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 115,
@@ -191,7 +212,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 44,
@@ -208,7 +232,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"id" : 36,
@@ -225,7 +252,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 18,
@@ -242,7 +272,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 12,
@@ -259,7 +292,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"dependencies" : [ 22 ],
@@ -286,7 +322,6 @@
 								"direction" : 0,
 								"offset" : -0.089999999999999997
 							},
-							"id" : 154,
 							"textures" : 
 							[
 								null,
@@ -312,7 +347,6 @@
 								"scrolldirection" : 3.1400000000000001,
 								"scrollspeed" : 0.029999999999999999
 							},
-							"id" : 133,
 							"textures" : 
 							[
 								null,
@@ -342,7 +376,6 @@
 								"speed" : 0.5,
 								"strength" : 0
 							},
-							"id" : 302,
 							"textures" : [ null, "waterripple_mask_8031e77678ff36970c82b0b66ebea75bb6a1bd36" ]
 						}
 					],
@@ -358,9 +391,7 @@
 					"name" : "",
 					"passes" : 
 					[
-						{
-							"id" : 176
-						},
+						{},
 						{
 							"combos" : 
 							{
@@ -369,8 +400,7 @@
 							"constantshadervalues" : 
 							{
 								"scale" : "0.009999999776482582 0.009999999776482582"
-							},
-							"id" : 177
+							}
 						},
 						{
 							"combos" : 
@@ -381,8 +411,7 @@
 							"constantshadervalues" : 
 							{
 								"scale" : "0.009999999776482582 0.009999999776482582"
-							},
-							"id" : 178
+							}
 						},
 						{
 							"combos" : 
@@ -397,7 +426,6 @@
 								"compositecolor" : "1 1 1",
 								"compositeoffset" : "0 0"
 							},
-							"id" : 179,
 							"textures" : 
 							[
 								null,
@@ -423,8 +451,7 @@
 							{
 								"offset" : "0 0",
 								"scale" : "1 1"
-							},
-							"id" : 280
+							}
 						}
 					],
 					"visible" : true
@@ -444,6 +471,9 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -477,8 +507,7 @@
 									"script" : "'use strict';\n\nlet OMGVector = shared.OMGVector;\n\nconst sway_begin = new Vec2(1, 1);\nconst sway_end = new Vec2(0.96, 0.96);\n\n/**\n * @param {Vec2} value (for property 'scale')\n */\nexport function update(value) {\n\treturn OMGVector.lerp(sway_begin, sway_end, shared.boat_sway);\n}",
 									"value" : "1 1"
 								}
-							},
-							"id" : 319
+							}
 						}
 					],
 					"visible" : true
@@ -512,8 +541,7 @@
 									"script" : "'use strict';\n\nlet OMGVector = shared.OMGVector;\n\nconst sway_begin = new Vec2(1, 1);\nconst sway_end = new Vec2(0.9, 0.9);\n\n/**\n * @param {Vec2} value (for property 'scale')\n */\nexport function update(value) {\n\treturn value;//OMGVector.lerp(sway_begin, sway_end, shared.boat_sway);\n}",
 									"value" : "1 1"
 								}
-							},
-							"id" : 50
+							}
 						}
 					],
 					"visible" : false
@@ -530,11 +558,14 @@
 			"visible" : 
 			{
 				"user" : "extra_effects",
-				"value" : false
+				"value" : true
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 40,
@@ -551,7 +582,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 430,
@@ -572,7 +606,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 164,
@@ -594,7 +631,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 422,
@@ -615,7 +655,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 426,
@@ -636,6 +679,9 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -659,7 +705,6 @@
 									"value" : 0
 								}
 							},
-							"id" : 353,
 							"textures" : [ null, "util/black" ]
 						}
 					],
@@ -677,7 +722,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"id" : 272,
@@ -694,7 +742,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"effects" : 
@@ -710,7 +761,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 398,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -731,7 +781,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"effects" : 
@@ -747,7 +800,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 404,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -768,7 +820,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"effects" : 
@@ -784,7 +839,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 425,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -805,7 +859,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"effects" : 
@@ -821,7 +878,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 372,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -846,7 +902,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 9,
 			"copybackground" : true,
 			"effects" : 
@@ -862,7 +921,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 378,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -887,7 +945,10 @@
 			}
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"id" : 26,
@@ -904,6 +965,9 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -928,7 +992,6 @@
 									"value" : 0
 								}
 							},
-							"id" : 288,
 							"textures" : [ null, "util/black" ]
 						}
 					],
@@ -946,7 +1009,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -962,7 +1028,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 298,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -983,7 +1048,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -999,7 +1067,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 431,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -1020,6 +1087,9 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -1040,7 +1110,6 @@
 							{
 								"multiply" : 0
 							},
-							"id" : 188,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -1058,7 +1127,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -1074,7 +1146,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 340,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -1095,7 +1166,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -1111,7 +1185,6 @@
 							{
 								"alpha" : 0.0099999997764825821
 							},
-							"id" : 333,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -1132,7 +1205,10 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
 			"angles" : "0.000 0.000 0.000",
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -1148,7 +1224,6 @@
 							{
 								"alpha" : 0
 							},
-							"id" : 345,
 							"textures" : [ null, "util/white" ]
 						}
 					],
@@ -1169,6 +1244,9 @@
 			"visible" : true
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -1192,7 +1270,6 @@
 									"value" : 0
 								}
 							},
-							"id" : 108,
 							"textures" : [ null, "util/black" ]
 						}
 					],
@@ -1226,6 +1303,9 @@
 			"volume" : 0.5
 		},
 		{
+			"alignment" : "center",
+			"alpha" : 1.0,
+			"color" : "1.000 1.000 1.000",
 			"colorBlendMode" : 0,
 			"copybackground" : true,
 			"effects" : 
@@ -1246,8 +1326,7 @@
 							{
 								"new_resolution" : "568 320",
 								"resolution_scale" : 0.5
-							},
-							"id" : 458
+							}
 						}
 					],
 					"visible" : true

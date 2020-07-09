@@ -1,6 +1,6 @@
 {
 	"contentrating" : "Everyone",
-	"description" : "An accurate and customizable recreation of the title screen from the game CrossCode. I tried to allow it to remain as authentic to the original as possible while also providing some optional enhancements. Enjoy.\n\n\n\ntags: cross code game ocean boat ship virtual reality vr augmented reality ar planet clouds wind pixel art lea breeze hi city music soothing soft calm retro",
+	"description" : "A customizable recreation of the title screen from the game CrossCode. I tried to remain authentic to the original while also providing some optional enhancements. Enjoy.\n\n\n\ntags: cross code game ocean sea city boat ship virtual reality vr augmented reality ar android planet clouds wind windy pixel art lea breeze breezy hi city music soothing soft calm retro",
 	"file" : "scene.json",
 	"general" : 
 	{
@@ -45,21 +45,25 @@
 			"extra_effects" : 
 			{
 				"order" : 106,
-				"text" : "Enable Extra Effects",
+				"text" : "Extra Effects",
 				"type" : "bool",
-				"value" : false
+				"value" : true
 			},
 			"music" : 
 			{
 				"options" : 
 				[
 					{
-						"label" : "Original",
+						"label" : "Title",
 						"value" : "New"
 					},
 					{
-						"label" : "Calm",
+						"label" : "Title (Early-Access)",
 						"value" : "Old"
+					},
+					{
+						"label" : "Title (Techdemo++)",
+						"value" : "Older"
 					},
 					{
 						"label" : "None",
@@ -69,7 +73,7 @@
 				"order" : 100,
 				"text" : "Music Track",
 				"type" : "combo",
-				"value" : "New"
+				"value" : "Old"
 			},
 			"schemecolor" : 
 			{
@@ -81,28 +85,28 @@
 			"show_developer_splash" : 
 			{
 				"order" : 103,
-				"text" : "Show Splash Screens",
+				"text" : "Developer Splash Screen",
 				"type" : "bool",
 				"value" : false
 			},
 			"show_intro" : 
 			{
 				"order" : 102,
-				"text" : "Show Title Screen Intro",
+				"text" : "Title Start-up Sequence",
 				"type" : "bool",
 				"value" : true
 			},
 			"show_logo" : 
 			{
 				"order" : 104,
-				"text" : "Show logo",
+				"text" : "Game Logo",
 				"type" : "bool",
 				"value" : true
 			},
 			"show_press_to_start" : 
 			{
 				"order" : 105,
-				"text" : "Show \"Press to start\"",
+				"text" : "\"Press to start\"",
 				"type" : "bool",
 				"value" : false
 			},
