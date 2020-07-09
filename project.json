@@ -137,6 +137,7 @@
 	"tags" : [ "Game" ],
 	"title" : "Crosscode Title Screen",
 	"type" : "scene",
-	"version" : 0,
-	"visibility" : "public"
+	"version" : 1,
+	"visibility" : "public",
+	"workshopid" : "2160541082"
 }
