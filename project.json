@@ -1,6 +1,7 @@
 {
+	"approved" : true,
 	"contentrating" : "Everyone",
-	"description" : "A customizable recreation of the title screen from the game CrossCode. I tried to remain authentic to the original while also providing some optional enhancements. Enjoy.\n\n\n\ntags: cross code game ocean sea city boat ship virtual reality vr augmented reality ar android planet clouds wind windy pixel art lea breeze breezy hi city music soothing soft calm retro",
+	"description" : "A customizable recreation of the title screen from the game CrossCode. I tried to remain authentic to the original while also providing some optional enhancements. Enjoy.\r\n\r\nYou can play CrossCode on Steam here: https://store.steampowered.com/app/368340/CrossCode/\r\n\r\n\r\ntags: cross code game ocean sea city boat ship virtual reality vr augmented reality ar android planet clouds wind windy pixel art lea breeze breezy hi city music soothing soft calm retro",
 	"file" : "scene.json",
 	"general" : 
 	{
@@ -22,7 +23,7 @@
 				"fraction" : true,
 				"max" : 3,
 				"min" : 0,
-				"order" : 107,
+				"order" : 108,
 				"precision" : 2,
 				"step" : 0.050000000000000003,
 				"text" : "Bloom",
@@ -35,7 +36,7 @@
 				"fraction" : true,
 				"max" : 1,
 				"min" : 0,
-				"order" : 108,
+				"order" : 109,
 				"precision" : 2,
 				"step" : 0.01,
 				"text" : "Boat Sway",
@@ -44,10 +45,17 @@
 			},
 			"extra_effects" : 
 			{
-				"order" : 106,
+				"order" : 107,
 				"text" : "Extra Effects",
 				"type" : "bool",
 				"value" : true
+			},
+			"lea_sitting" : 
+			{
+				"order" : 106,
+				"text" : "Lea sits on the rails",
+				"type" : "bool",
+				"value" : false
 			},
 			"music" : 
 			{
@@ -116,7 +124,7 @@
 				"fraction" : true,
 				"max" : 1,
 				"min" : 0,
-				"order" : 110,
+				"order" : 111,
 				"precision" : 2,
 				"step" : 0.01,
 				"text" : "Water Reflection",
@@ -126,7 +134,7 @@
 			"water_ripples" : 
 			{
 				"condition" : "extra_effects.value == true",
-				"order" : 109,
+				"order" : 110,
 				"text" : "Water Ripples",
 				"type" : "bool",
 				"value" : true
@@ -137,7 +145,7 @@
 	"tags" : [ "Game" ],
 	"title" : "Crosscode Title Screen",
 	"type" : "scene",
-	"version" : 1,
+	"version" : 2,
 	"visibility" : "public",
 	"workshopid" : "2160541082"
 }
